@@ -1,0 +1,30 @@
+# Relationship Finder Template
+
+Find and describe the relationship path between {{person1_name}} and {{person2_name}}.
+
+## Context
+Use the following GEDCOM data structure:
+- Person: {id, name, gender, birth_date, birth_place, death_date, death_place}
+- Family: {id, husband_id, wife_id, children_ids[], marriage_date, marriage_place}
+- Relationship types: parent/child, spouse, sibling (sharing parents)
+
+## Instructions
+1. Identify all possible relationship paths between the two people
+2. Describe the shortest path in detail
+3. If there are multiple paths, mention the alternatives
+4. Use clear relationship terminology (parent, child, spouse, sibling, cousin, etc.)
+5. Count the degrees of separation
+6. If no relationship exists, clearly state that
+
+## Person 1 Data
+{{person1_data}}
+
+## Person 2 Data
+{{person2_data}}
+
+## Family Data
+{{family_data}}
+
+## Output Format
+Provide a clear explanation of the relationship, such as:
+"{{person1_name}} is the [relationship] of {{person2_name}} through [path details]."

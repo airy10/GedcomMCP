@@ -1,0 +1,32 @@
+# Biography Summary Template
+
+Generate a biographical summary for {{person_name}} based on the provided genealogy data.
+
+## Context
+Use the following GEDCOM data structure:
+- Person: {id, name, gender, birth_date, birth_place, death_date, death_place, occupation}
+- Family: {id, husband_id, wife_id, children_ids[], marriage_date, marriage_place}
+- Events: {type, date, place, description}
+
+## Instructions
+1. Create a narrative biography for {{person_name}}
+2. Include key life events in chronological order
+3. Mention family relationships (parents, spouse, children)
+4. Include historical context relevant to their time period and locations
+5. Highlight any notable occupations or achievements
+6. Keep the tone engaging but factual
+
+## Person Data
+{{person_data}}
+
+## Family Data
+{{family_data}}
+
+## Event Data
+{{event_data}}
+
+## Historical Context
+{{historical_context}}
+
+## Output Format
+Provide a well-structured biography of 3-5 paragraphs that tells the story of this person's life.

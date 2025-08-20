@@ -1,0 +1,25 @@
+# Family Tree Query Template
+
+Generate a family tree visualization for {{person_name}} for {{generation_count}} generations.
+
+## Context
+Use the following GEDCOM data structure:
+- Person: {id, name, gender, birth_date, birth_place, death_date, death_place}
+- Family: {id, husband_id, wife_id, children_ids[], marriage_date, marriage_place}
+- Relationships are linked through IDs
+
+## Instructions
+1. Start with the specified person
+2. Include {{generation_count}} generations of ancestors (parents, grandparents, etc.)
+3. Show family connections with proper linking
+4. Include key details: names, birth/death dates and places
+5. Format the response as a structured tree using indentation or JSON
+
+## Person Data
+{{person_data}}
+
+## Family Data
+{{family_data}}
+
+## Output Format
+Provide the family tree in a clear, readable format that shows generational relationships.
