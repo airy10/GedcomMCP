@@ -17,26 +17,28 @@ biography for any GEDCOM individual, being able to complete the document with ge
 or historal context by searching the web
 
 Some sample complex prompts:
-   Load gedcom "myfamily.ged"
+```Load gedcom "myfamily.ged"
    Make a complete, detailled biography of <name of some people from the GEDCOM> and his fammily. Use as much as you can from this genealogy, including any notes from him or his relatives. 
    You can try to find some info on Internet to complete the document, add some historical or geographic context, etc. Be as complete as possible to tell us a nice story, easy to read by everyone
+```
 
-    or
-
-  Create a new GEDCOM file - save it to "napo.ged"                                                                                                                                              
+or
+    
+```Create a new GEDCOM file - save it to "napo.ged"                                                                                                                                              
   Fetch the content of Napoleon I's Wikipedia page                                                                                                                                           
     1. Extract genealogical information about him and people mentioned on his page                                                                                                             
     2. Follow links to other people's Wikipedia pages to gather more information                                                                                                              
     3. Create a comprehensive genealogical record  with as much details as possible. Including birth/death dates and place, family relationships (parents, spouses, children...), occupation, etc, and including a note with the person wikipedia page address and important info about his life                                                                                                                    
     4. Repeat the same process with all people added by previous steps                                                                                                                       
-   Continuously save the GEDCOM file as new people are added                                                                                                                                 
+   Continuously save the GEDCOM file as new people are added
+```
 
-    or
-
-   Load gedcom "myfamily.ged"
+or
+    
+```Load gedcom "myfamily.ged"
    What's shortest path from John Doe to Bob Smith ?
    And who are their common ancestors ?
-   
+```   
 
 ## Features
 
