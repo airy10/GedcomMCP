@@ -177,18 +177,17 @@ async def load_gedcom(file_path: str, ctx: Context) -> str:
 
 
 @mcp.tool()
-async def find_person(name: str, ctx: Context) -> str:
+async def find_person(name: str, ctx: Context) -> list:
     """Find persons matching a name"""
     gedcom_ctx = get_gedcom_context(ctx)
     if not gedcom_ctx.gedcom_parser:
-        return "No GEDCOM file loaded. Please load a GEDCOM file first."
+        return [{"error": "No GEDCOM file loaded. Please load a GEDCOM file first."}]
         
     persons = find_person_by_name(name, gedcom_ctx)
     if persons:
-        persons_json = [person.model_dump() for person in persons]
-        return str(persons_json)
+        return [person.model_dump() for person in persons]
     else:
-        return f"No persons found matching: {name}"
+        return [{"error": f"No persons found matching: {name}"}]
 
 @mcp.tool()
 async def get_occupation(person_id: str, ctx: Context) -> str:
@@ -334,21 +333,21 @@ async def gedcom_search(query: str, ctx: Context, search_type: str = "all") -> s
         return f"No results found for query: {query}"
 
 @mcp.tool()
-async def get_statistics(ctx: Context) -> str:
+async def get_statistics(ctx: Context) -> dict:
     """Get comprehensive statistics about the GEDCOM file"""
     gedcom_ctx = get_gedcom_context(ctx)
     if not gedcom_ctx.gedcom_parser:
-        return "No GEDCOM file loaded. Please load a GEDCOM file first."
+        return {"error": "No GEDCOM file loaded. Please load a GEDCOM file first."}
         
     stats = _get_statistics_internal(gedcom_ctx)
     if stats:
-        return str(stats)
+        return stats
     else:
-        return "No statistics available"
+        return {"error": "No statistics available"}
 
 # New tool starts here
 @mcp.tool()
-async def get_attribute_statistics(attribute_type: str, ctx: Context) -> str:
+async def get_attribute_statistics(attribute_type: str, ctx: Context) -> dict:
     """
     Retrieves statistics for a given GEDCOM attribute (e.g., 'OCCU' or 'Occupation')
     across all individuals and families in the loaded GEDCOM file.
@@ -357,26 +356,25 @@ async def get_attribute_statistics(attribute_type: str, ctx: Context) -> str:
         attribute_type: The GEDCOM attribute tag (e.g., 'OCCU') or its human-readable
                         name (e.g., 'Occupation').
     Returns:
-        A JSON string representing a dictionary where keys are attribute values
-        and values are their counts. Returns an error message if no GEDCOM
-        file is loaded or if an invalid/unsupported attribute type is provided.
+        A dictionary where keys are attribute values and values are their counts. 
+        Returns an error message if no GEDCOM file is loaded or if an invalid/unsupported attribute type is provided.
     """
     gedcom_ctx = get_gedcom_context(ctx)
     if not gedcom_ctx.gedcom_parser:
-        return "No GEDCOM file loaded. Please load a GEDCOM file first."
+        return {"error": "No GEDCOM file loaded. Please load a GEDCOM file first."}
 
     try:
         stats = _get_attribute_statistics_internal(gedcom_ctx, attribute_type)
         # Check if the internal function returned an error dictionary
         if "error" in stats:
-            return stats["error"]
-        return json.dumps(stats, indent=2)
+            return {"error": stats["error"]}
+        return stats
     except Exception as e:
-        return f"Error getting attribute statistics for '{attribute_type}': {e}"
+        return {"error": f"Error getting attribute statistics for '{attribute_type}': {e}"}
 # New tool ends here
 
 @mcp.tool()
-async def get_ancestors(person_id: str, ctx: Context, generations: int = 3, format: str = 'nested', page: int = 1, page_size: int = 100) -> str:
+async def get_ancestors(person_id: str, ctx: Context, generations: int = 3, format: str = 'nested', page: int = 1, page_size: int = 100) -> dict:
     """Get ancestors of a person for specified number of generations, with optional formatting and pagination.
     
     Args:
@@ -387,11 +385,11 @@ async def get_ancestors(person_id: str, ctx: Context, generations: int = 3, form
         page_size: Number of entries per page (default 100, max 500) for 'flat' format.
     
     Returns:
-        JSON with ancestors data.
+        Dictionary with ancestors data.
     """
     gedcom_ctx = get_gedcom_context(ctx)
     if not gedcom_ctx.gedcom_parser:
-        return "No GEDCOM file loaded. Please load a GEDCOM file first."
+        return {"error": "No GEDCOM file loaded. Please load a GEDCOM file first."}
     
     try:
         ancestors = _get_ancestors_internal(person_id, gedcom_ctx, generations=generations, format=format)
@@ -399,9 +397,9 @@ async def get_ancestors(person_id: str, ctx: Context, generations: int = 3, form
         if format == 'flat':
             # Apply pagination for flat format
             if page < 1:
-                return "Page number must be 1 or greater"
+                return {"error": "Page number must be 1 or greater"}
             if page_size < 1 or page_size > 500:
-                return "Page size must be between 1 and 500"
+                return {"error": "Page size must be between 1 and 500"}
             
             total_count = len(ancestors)
             total_pages = (total_count + page_size - 1) // page_size
@@ -424,11 +422,15 @@ async def get_ancestors(person_id: str, ctx: Context, generations: int = 3, form
                     "level": level
                 } for ancestor_id, level in page_data]
             }
-            return json.dumps(result, indent=2)
+            return result
         else:
-            return str(ancestors)
+            # For nested format, return the ancestors directly
+            if isinstance(ancestors, dict):
+                return ancestors
+            else:
+                return {"ancestors": str(ancestors)}
     except Exception as e:
-        return f"Error getting ancestors: {e}"
+        return {"error": f"Error getting ancestors: {e}"}
 
 @mcp.tool()
 async def get_family_tree_summary(person_id: str, ctx: Context) -> str:
@@ -483,7 +485,7 @@ async def find_potential_duplicates(ctx: Context) -> str:
         return f"Error finding duplicates: {e}"
 
 @mcp.tool()
-async def get_descendants(person_id: str, ctx: Context, generations: int = 3, format: str = 'nested', page: int = 1, page_size: int = 100) -> str:
+async def get_descendants(person_id: str, ctx: Context, generations: int = 3, format: str = 'nested', page: int = 1, page_size: int = 100) -> dict:
     """Get descendants of a person for specified number of generations, with optional formatting and pagination.
     
     Args:
@@ -494,11 +496,11 @@ async def get_descendants(person_id: str, ctx: Context, generations: int = 3, fo
         page_size: Number of entries per page (default 100, max 500) for 'flat' format.
     
     Returns:
-        JSON with descendants data.
+        Dictionary with descendants data.
     """
     gedcom_ctx = get_gedcom_context(ctx)
     if not gedcom_ctx.gedcom_parser:
-        return "No GEDCOM file loaded. Please load a GEDCOM file first."
+        return {"error": "No GEDCOM file loaded. Please load a GEDCOM file first."}
     
     try:
         descendants = _get_descendants_internal(person_id, gedcom_ctx, generations=generations, format=format)
@@ -506,9 +508,9 @@ async def get_descendants(person_id: str, ctx: Context, generations: int = 3, fo
         if format == 'flat':
             # Apply pagination for flat format
             if page < 1:
-                return "Page number must be 1 or greater"
+                return {"error": "Page number must be 1 or greater"}
             if page_size < 1 or page_size > 500:
-                return "Page size must be between 1 and 500"
+                return {"error": "Page size must be between 1 and 500"}
             
             total_count = len(descendants)
             total_pages = (total_count + page_size - 1) // page_size
@@ -531,18 +533,22 @@ async def get_descendants(person_id: str, ctx: Context, generations: int = 3, fo
                     "level": level
                 } for descendant_id, level in page_data]
             }
-            return json.dumps(result, indent=2)
+            return result
         else:
-            return str(descendants)
+            # For nested format, return the descendants directly
+            if isinstance(descendants, dict):
+                return descendants
+            else:
+                return {"descendants": str(descendants)}
     except Exception as e:
-        return f"Error getting descendants: {e}"
+        return {"error": f"Error getting descendants: {e}"}
 
 
 
 
 
 @mcp.tool()
-async def find_all_paths_to_ancestor(start_person_id: str, ancestor_id: str, ctx: Context, max_paths: int = 10) -> str:
+async def find_all_paths_to_ancestor(start_person_id: str, ancestor_id: str, ctx: Context, max_paths: int = 10) -> dict:
     """Find all paths from a person to a specific ancestor, following only parent relationships.
     
     Args:
@@ -551,17 +557,17 @@ async def find_all_paths_to_ancestor(start_person_id: str, ancestor_id: str, ctx
         max_paths: Maximum number of paths to return (default: 10)
         
     Returns:
-        JSON with all paths from start_person_id to ancestor_id
+        Dictionary with all paths from start_person_id to ancestor_id
     """
     gedcom_ctx = get_gedcom_context(ctx)
     if not gedcom_ctx.gedcom_parser:
-        return "No GEDCOM file loaded. Please load a GEDCOM file first."
+        return {"error": "No GEDCOM file loaded. Please load a GEDCOM file first."}
     
     try:
         paths = _find_all_paths_to_ancestor_internal(start_person_id, ancestor_id, gedcom_ctx, max_paths)
         
         if not paths:
-            return f"No paths found from {start_person_id} to ancestor {ancestor_id}"
+            return {"error": f"No paths found from {start_person_id} to ancestor {ancestor_id}"}
         
         # Enrich paths with person names
         enriched_paths = []
@@ -589,13 +595,13 @@ async def find_all_paths_to_ancestor(start_person_id: str, ancestor_id: str, ctx
             "paths": enriched_paths
         }
         
-        return json.dumps(result, indent=2)
+        return result
         
     except Exception as e:
-        return f"Error finding paths to ancestor: {e}\n{traceback.format_exc()}"
+        return {"error": f"Error finding paths to ancestor: {e}\n{traceback.format_exc()}"}
 
 @mcp.tool()
-async def get_persons_batch(person_ids: str, ctx: Context, include_fields: str = "basic") -> str:
+async def get_persons_batch(person_ids: str, ctx: Context, include_fields: str = "basic") -> dict:
     """Get details for one or multiple persons by their IDs. This is the primary tool for retrieving person details.
     
     Args:
@@ -608,13 +614,13 @@ async def get_persons_batch(person_ids: str, ctx: Context, include_fields: str =
     """
     gedcom_ctx = get_gedcom_context(ctx)
     if not gedcom_ctx.gedcom_parser:
-        return "No GEDCOM file loaded. Please load a GEDCOM file first."
+        return {"error": "No GEDCOM file loaded. Please load a GEDCOM file first."}
     
     try:
         # Parse the person IDs
         ids = [pid.strip() for pid in person_ids.split(',') if pid.strip()]
         if not ids:
-            return "No valid person IDs provided"
+            return {"error": "No valid person IDs provided"}
         
         # Define field sets
         basic_fields = {"id", "name", "birth_date", "death_date"}
@@ -636,7 +642,7 @@ async def get_persons_batch(person_ids: str, ctx: Context, include_fields: str =
             valid_fields = full_fields
             fields_to_include = custom_fields & valid_fields
             if not fields_to_include:
-                return f"No valid fields specified. Available fields: {', '.join(sorted(valid_fields))}"
+                return {"error": f"No valid fields specified. Available fields: {', '.join(sorted(valid_fields))}"}
         
         # Collect person details
         persons_data = []
@@ -663,44 +669,26 @@ async def get_persons_batch(person_ids: str, ctx: Context, include_fields: str =
             else:
                 not_found.append(person_id)
         
-        # Format the result
-        result = "{\n"
-        result += f'  "total_requested": {len(ids)},\n'
-        result += f'  "found": {len(persons_data)},\n'
-        result += f'  "not_found": {len(not_found)},\n'
-        result += f'  "fields_included": {sorted(fields_to_include)},\n'
+        # Format the result as a dictionary
+        result = {
+            "total_requested": len(ids),
+            "found": len(persons_data),
+            "not_found": len(not_found),
+            "fields_included": sorted(fields_to_include),
+            "persons": persons_data
+        }
         
         if not_found:
-            result += f'  "not_found_ids": {not_found},\n'
-        
-        result += '  "persons": [\n'
-        
-        for i, person_data in enumerate(persons_data):
-            result += '    {\n'
-            for j, (key, value) in enumerate(person_data.items()):
-                if isinstance(value, list):
-                    result += f'      "{key}": {value}'
-                else:
-                    result += f'      "{key}": "{value}"'
-                if j < len(person_data) - 1:
-                    result += ','
-                result += '\n'
-            result += '    }'
-            if i < len(persons_data) - 1:
-                result += ','
-            result += '\n'
-        
-        result += '  ]\n'
-        result += '}'
+            result["not_found_ids"] = not_found
         
         return result
     
     except Exception as e:
-        return f"Error getting persons batch: {e}"
+        return {"error": f"Error getting persons batch: {e}"}
 
 
 @mcp.tool()
-async def query_people_by_criteria(ctx: Context, filters: str = "", page: int = 1, page_size: int = 100) -> str:
+async def query_people_by_criteria(ctx: Context, filters: str = "", page: int = 1, page_size: int = 100) -> dict:
     """Query people using flexible criteria with pagination
     
     Args:
@@ -731,13 +719,13 @@ async def query_people_by_criteria(ctx: Context, filters: str = "", page: int = 
     """
     gedcom_ctx = get_gedcom_context(ctx)
     if not gedcom_ctx.gedcom_parser:
-        return "No GEDCOM file loaded. Please load a GEDCOM file first."
+        return {"error": "No GEDCOM file loaded. Please load a GEDCOM file first."}
     
     # Validate parameters
     if page < 1:
-        return "Page number must be 1 or greater"
+        return {"error": "Page number must be 1 or greater"}
     if page_size < 1 or page_size > 500:
-        return "Page size must be between 1 and 500"
+        return {"error": "Page size must be between 1 and 500"}
     
     try:
         # Parse filters
@@ -746,7 +734,7 @@ async def query_people_by_criteria(ctx: Context, filters: str = "", page: int = 
             try:
                 filter_criteria = json.loads(filters)
             except json.JSONDecodeError:
-                return f"Invalid JSON in filters parameter: {filters}"
+                return {"error": f"Invalid JSON in filters parameter: {filters}"}
         
         # PERFORMANCE OPTIMIZATION: Use lookup dictionary instead of iterating through all elements
         # Get all people
@@ -769,53 +757,53 @@ async def query_people_by_criteria(ctx: Context, filters: str = "", page: int = 
         # Get the page of people
         page_people = matching_people[start_index:end_index]
         
-        # Format result
-        result = "{\n"
-        result += f'  "filters_applied": {json.dumps(filter_criteria)},\n'
-        result += f'  "page": {page},\n'
-        result += f'  "page_size": {page_size},\n'
-        result += f'  "total_pages": {total_pages},\n'
-        result += f'  "total_count": {total_count},\n'
-        result += f'  "has_next_page": {page < total_pages},\n'
-        result += f'  "has_previous_page": {page > 1},\n'
-        result += f'  "current_page_count": {len(page_people)},\n'
-        result += '  "people": [\n'
-        
-        for i, person in enumerate(page_people):
-            result += '    {\n'
-            result += f'      "id": "{person.id}",\n'
-            result += f'      "name": "{person.name}",\n'
+        # Format result as a dictionary
+        people_data = []
+        for person in page_people:
+            person_data = {
+                "id": person.id,
+                "name": person.name,
+                "has_children": len(person.children) > 0,
+                "has_parents": len(person.parents) > 0,
+                "has_spouses": len(person.spouses) > 0,
+                "is_living": person.death_date is None
+            }
+            
+            # Add optional fields if they exist
             if person.birth_date:
-                result += f'      "birth_date": "{person.birth_date}",\n'
+                person_data["birth_date"] = person.birth_date
             if person.birth_place:
-                result += f'      "birth_place": "{person.birth_place}",\n'
+                person_data["birth_place"] = person.birth_place
             if person.death_date:
-                result += f'      "death_date": "{person.death_date}",\n'
+                person_data["death_date"] = person.death_date
             if person.death_place:
-                result += f'      "death_place": "{person.death_place}",\n'
+                person_data["death_place"] = person.death_place
             if person.gender:
-                result += f'      "gender": "{person.gender}",\n'
+                person_data["gender"] = person.gender
             if person.occupation:
-                result += f'      "occupation": "{person.occupation}",\n'
-            result += f'      "has_children": {len(person.children) > 0},\n'
-            result += f'      "has_parents": {len(person.parents) > 0},\n'
-            result += f'      "has_spouses": {len(person.spouses) > 0},\n'
-            result += f'      "is_living": {person.death_date is None}\n'
-            result += '    }'
-            if i < len(page_people) - 1:
-                result += ','
-            result += '\n'
+                person_data["occupation"] = person.occupation
+                
+            people_data.append(person_data)
         
-        result += '  ]\n'
-        result += '}'
+        result = {
+            "filters_applied": filter_criteria,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": total_pages,
+            "total_count": total_count,
+            "has_next_page": page < total_pages,
+            "has_previous_page": page > 1,
+            "current_page_count": len(page_people),
+            "people": people_data
+        }
         
         return result
     
     except Exception as e:
-        return f"Error querying people by criteria: {e}"
+        return {"error": f"Error querying people by criteria: {e}"}
 
 @mcp.tool()
-async def get_all_entity_ids(entity_type: str, ctx: Context, page: int = 1, page_size: int = 100) -> str:
+async def get_all_entity_ids(entity_type: str, ctx: Context, page: int = 1, page_size: int = 100) -> dict:
     """Get all IDs for a specific entity type (person, family, place, note, source) with pagination.
 
     Args:
@@ -825,7 +813,7 @@ async def get_all_entity_ids(entity_type: str, ctx: Context, page: int = 1, page
     """
     gedcom_ctx = get_gedcom_context(ctx)
     if not gedcom_ctx.gedcom_parser:
-        return "No GEDCOM file loaded. Please load a GEDCOM file first."
+        return {"error": "No GEDCOM file loaded. Please load a GEDCOM file first."}
 
     all_ids = []
     total_count = 0
@@ -850,13 +838,13 @@ async def get_all_entity_ids(entity_type: str, ctx: Context, page: int = 1, page
             all_ids = [place['name'] for place in places_data]
             max_page_size = 500 # Max page size for places
         else:
-            return "Error: Invalid entity_type. Must be 'person', 'family', 'place', 'note', or 'source'."
+            return {"error": "Invalid entity_type. Must be 'person', 'family', 'place', 'note', or 'source'."}
 
         # Validate parameters
         if page < 1:
-            return "Page number must be 1 or greater"
+            return {"error": "Page number must be 1 or greater"}
         if page_size < 1 or page_size > max_page_size:
-            return f"Page size must be between 1 and {max_page_size}"
+            return {"error": f"Page size must be between 1 and {max_page_size}"}
 
         all_ids.sort() # Sort for consistent ordering
         total_count = len(all_ids)
@@ -878,11 +866,10 @@ async def get_all_entity_ids(entity_type: str, ctx: Context, page: int = 1, page
             f"{entity_type}_ids": page_ids # Dynamic key
         }
         
-        import json
-        return json.dumps(result, indent=2)
+        return result
 
     except Exception as e:
-        return f"Error getting all {entity_type} IDs: {e}"
+        return {"error": f"Error getting all {entity_type} IDs: {e}"}
 
 @mcp.tool()
 async def find_shortest_relationship_path(person1_id: str, person2_id: str, ctx: Context, allowed_relationships: str = "default", max_distance: int = 30, exclude_initial_spouse_children: bool = False, min_distance: int = 0) -> str:
@@ -989,6 +976,9 @@ async def find_shortest_relationship_path(person1_id: str, person2_id: str, ctx:
         
         # Call the internal function instead of duplicating the logic
         result = _find_shortest_relationship_path_internal(person1_id, person2_id, allowed_relationships, gedcom_ctx, max_distance, exclude_initial_spouse_children, min_distance)
+        # Convert dict to JSON string for the tool response
+        if isinstance(result, dict):
+            return json.dumps(result, indent=2)
         return result
         
     except Exception as e:
@@ -1040,13 +1030,16 @@ async def find_all_relationship_paths(person1_id: str, person2_id: str, ctx: Con
     try:
         # Call the internal function instead of duplicating the logic
         result = _find_all_relationship_paths_internal(person1_id, person2_id, allowed_relationships, gedcom_ctx, max_distance, max_paths)
+        # Convert dict to JSON string for the tool response
+        if isinstance(result, dict):
+            return json.dumps(result, indent=2)
         return result
     except Exception as e:
         import traceback
         return f"Error finding all relationship paths: {e}\n{traceback.format_exc()}"
 
 @mcp.tool()
-async def get_common_ancestors(person_ids: str, ctx: Context, max_level: int = 20) -> str:
+async def get_common_ancestors(person_ids: str, ctx: Context, max_level: int = 20) -> dict:
     """Find common ancestors for a list of people
     
     Args:
@@ -1054,7 +1047,7 @@ async def get_common_ancestors(person_ids: str, ctx: Context, max_level: int = 2
         max_level: Maximum ancestor level to search (default: 20)
     
     Returns:
-        JSON with common ancestors, their levels for each person, and statistics
+        Dictionary with common ancestors, their levels for each person, and statistics
     """
     gedcom_ctx = get_gedcom_context(ctx)
     try:
@@ -1063,10 +1056,10 @@ async def get_common_ancestors(person_ids: str, ctx: Context, max_level: int = 2
         
         result = get_common_ancestors_internal(person_id_list, gedcom_ctx, max_level)
         
-        return json.dumps(result, indent=2)
+        return result
         
     except Exception as e:
-        return f"Error finding common ancestors: {e}\n{traceback.format_exc()}"
+        return {"error": f"Error finding common ancestors: {e}\n{traceback.format_exc()}"}
 
 
 
@@ -1118,19 +1111,19 @@ async def update_person(person_id: str, ctx: Context, name: str = None, gender: 
         return f"Error updating person {person_id}: {e}"
 
 @mcp.tool()
-async def find_person_families(person_id: str, ctx: Context) -> str:
+async def find_person_families(person_id: str, ctx: Context) -> dict:
     """Finds the families a person is associated with (as a spouse or child).
 
     Args:
         person_id: The ID of the person to look up.
 
     Returns:
-        A JSON string detailing the families where the person is a spouse (FAMS)
+        A dictionary detailing the families where the person is a spouse (FAMS)
         and where they are a child (FAMC).
     """
     gedcom_ctx = get_gedcom_context(ctx)
     if not gedcom_ctx.gedcom_parser or person_id not in gedcom_ctx.individual_lookup:
-        return f"Error: Person with ID {person_id} not found."
+        return {"error": f"Person with ID {person_id} not found."}
 
     person = gedcom_ctx.individual_lookup[person_id]
     
@@ -1146,11 +1139,11 @@ async def find_person_families(person_id: str, ctx: Context) -> str:
         if elem.get_tag() == "FAMC":
             famc.append(elem.get_value())
 
-    return str({
+    return {
         "person_id": person_id,
         "families_as_spouse": fams,
         "family_as_child": famc
-    })
+    }
 
 
 @mcp.tool()
@@ -1369,7 +1362,7 @@ async def update_event_details(entity_id: str, event_type: str, ctx: Context, ne
 
 
 @mcp.tool()
-async def get_person_attributes(person_id: str, ctx: Context) -> str:
+async def get_person_attributes(person_id: str, ctx: Context) -> dict:
     """Retrieves all attributes for a person.
     Args:
         person_id (str): The ID of the person.
@@ -1380,10 +1373,10 @@ async def get_person_attributes(person_id: str, ctx: Context) -> str:
         gedcom_ctx = get_gedcom_context(ctx)
         attributes = _get_person_attributes_internal(person_id, gedcom_ctx)
         if attributes:
-            return json.dumps({"attributes": attributes})
-        return json.dumps({"error": f"Person with ID {person_id} not found or has no attributes."})
+            return {"attributes": attributes}
+        return {"error": f"Person with ID {person_id} not found or has no attributes."}
     except Exception as e:
-        return json.dumps({"error": f"Error retrieving attributes: {e}"})
+        return {"error": f"Error retrieving attributes: {e}"}
 
 @mcp.tool()
 async def update_person_attribute(person_id: str, attribute_tag: str, new_value: str, ctx: Context) -> str:

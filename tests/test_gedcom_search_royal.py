@@ -33,10 +33,10 @@ class TestGedcomSearchComplex(unittest.TestCase):
             self.skipTest("Required individuals not found in royal92.ged")
             
         # Find the shortest relationship path
-        result_json = _find_shortest_relationship_path_internal("@I799@", "@I1203@", "all", self.gedcom_ctx)
-        result = json.loads(result_json)
+        result = _find_shortest_relationship_path_internal("@I799@", "@I1203@", "all", self.gedcom_ctx)
         
         # Verify the result structure
+        self.assertIsInstance(result, dict)
         self.assertIn("path", result)
         self.assertIn("distance", result)
         self.assertIn("relationship_chain", result)
@@ -65,10 +65,10 @@ class TestGedcomSearchComplex(unittest.TestCase):
             self.skipTest("Required individuals not found in royal92.ged")
             
         # Find all relationship paths
-        result_json = _find_all_relationship_paths_internal("@I799@", "@I1203@", "all", self.gedcom_ctx)
-        result = json.loads(result_json)
+        result = _find_all_relationship_paths_internal("@I799@", "@I1203@", "all", self.gedcom_ctx)
         
         # Verify the result structure
+        self.assertIsInstance(result, dict)
         self.assertIn("paths", result)
         self.assertIn("total_paths", result)
         
@@ -88,12 +88,10 @@ class TestGedcomSearchComplex(unittest.TestCase):
             self.skipTest("Required individuals not found in royal92.ged")
             
         # Get the shortest path
-        shortest_result_json = _find_shortest_relationship_path_internal("@I799@", "@I1203@", "all", self.gedcom_ctx)
-        shortest_result = json.loads(shortest_result_json)
+        shortest_result = _find_shortest_relationship_path_internal("@I799@", "@I1203@", "all", self.gedcom_ctx)
         
         # Get all paths
-        all_result_json = _find_all_relationship_paths_internal("@I799@", "@I1203@", "all", self.gedcom_ctx)
-        all_result = json.loads(all_result_json)
+        all_result = _find_all_relationship_paths_internal("@I799@", "@I1203@", "all", self.gedcom_ctx)
         
         # If both found paths, verify basic consistency
         if (all_result["total_paths"] > 0 and shortest_result["path"] is not None and 
@@ -109,8 +107,7 @@ class TestGedcomSearchComplex(unittest.TestCase):
             self.skipTest("Required individuals not found in royal92.ged")
             
         # Find the shortest relationship path
-        result_json = _find_shortest_relationship_path_internal("@I799@", "@I1203@", "all", self.gedcom_ctx)
-        result = json.loads(result_json)
+        result = _find_shortest_relationship_path_internal("@I799@", "@I1203@", "all", self.gedcom_ctx)
         
         # Skip if no path was found
         if result["path"] is None:
@@ -137,16 +134,13 @@ class TestGedcomSearchComplex(unittest.TestCase):
             self.skipTest("Required individuals not found in royal92.ged")
             
         # Find path with all relationship types (should be shortest)
-        all_result_json = _find_shortest_relationship_path_internal("@I799@", "@I1203@", "all", self.gedcom_ctx)
-        all_result = json.loads(all_result_json)
+        all_result = _find_shortest_relationship_path_internal("@I799@", "@I1203@", "all", self.gedcom_ctx)
         
         # Find path with only parent/child/spouse (should be longer or equal)
-        limited_result_json = _find_shortest_relationship_path_internal("@I799@", "@I1203@", "parent,child,spouse", self.gedcom_ctx)
-        limited_result = json.loads(limited_result_json)
+        limited_result = _find_shortest_relationship_path_internal("@I799@", "@I1203@", "parent,child,spouse", self.gedcom_ctx)
         
         # Find path with only blood relationships (parent/child) - should not find a path
-        blood_result_json = _find_shortest_relationship_path_internal("@I799@", "@I1203@", "blood", self.gedcom_ctx)
-        blood_result = json.loads(blood_result_json)
+        blood_result = _find_shortest_relationship_path_internal("@I799@", "@I1203@", "blood", self.gedcom_ctx)
         
         # All should find valid paths except blood-only (since they're not directly blood-related)
         self.assertIsNotNone(all_result["path"])
@@ -179,16 +173,14 @@ class TestGedcomSearchComplex(unittest.TestCase):
         # First verify that Elizabeth II exists in the GEDCOM
         if "@I52@" in self.gedcom_ctx.individual_lookup:
             # Try to find a path between James Crombie and Elizabeth II
-            result_json = _find_shortest_relationship_path_internal("@I799@", "@I52@", "all", self.gedcom_ctx)
-            result = json.loads(result_json)
+            result = _find_shortest_relationship_path_internal("@I799@", "@I52@", "all", self.gedcom_ctx)
             
             # Verify we can find a connection to Elizabeth II
             self.assertIsNotNone(result["path"])
             self.assertNotEqual(result["distance"], -1)
             
             # Try to find a path between Elizabeth II and Alexander Zoubkoff
-            result_json2 = _find_shortest_relationship_path_internal("@I52@", "@I1203@", "all", self.gedcom_ctx)
-            result2 = json.loads(result_json2)
+            result2 = _find_shortest_relationship_path_internal("@I52@", "@I1203@", "all", self.gedcom_ctx)
             
             # Verify we can find a connection from Elizabeth II
             self.assertIsNotNone(result2["path"])

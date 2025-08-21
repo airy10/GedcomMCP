@@ -698,7 +698,7 @@ def _format_relationship_description(rel_type):
     else:
         return rel_type
 
-def _find_shortest_relationship_path_internal(person1_id: str, person2_id: str, allowed_relationships: str, gedcom_ctx, max_distance: int = 30, exclude_initial_spouse_children: bool = False, min_distance: int = 0) -> str:
+def _find_shortest_relationship_path_internal(person1_id: str, person2_id: str, allowed_relationships: str, gedcom_ctx, max_distance: int = 30, exclude_initial_spouse_children: bool = False, min_distance: int = 0) -> Dict[str, Any]:
     """Find the shortest relationship path between two people
     
     Args:
@@ -726,7 +726,7 @@ def _find_shortest_relationship_path_internal(person1_id: str, person2_id: str, 
                      Useful for finding distant relationships while avoiding immediate family
     
     Returns:
-        JSON with shortest path, relationship chain, and distance
+        Dict with shortest path, relationship chain, and distance
         If path exceeds max_distance, returns result with "path_too_long": true
     """
     logger = logging.getLogger(__name__)
@@ -738,12 +738,17 @@ def _find_shortest_relationship_path_internal(person1_id: str, person2_id: str, 
     person2 = get_person_details_internal(person2_id, gedcom_ctx)
     
     if not person1:
-        return f"Person not found: {person1_id}"
+        return {"error": f"Person not found: {person1_id}"}
     if not person2:
-        return f"Person not found: {person2_id}"
+        return {"error": f"Person not found: {person2_id}"}
     
     if person1_id == person2_id:
-        return f'{{"path": ["{person1_id}"], "distance": 0, "relationship_chain": ["self"], "description": "Same person"}}'
+        return {
+            "path": [person1_id],
+            "distance": 0,
+            "relationship_chain": ["self"],
+            "description": "Same person"
+        }
     
     # Validate max_distance
     if max_distance < 1:
@@ -813,9 +818,19 @@ def _find_shortest_relationship_path_internal(person1_id: str, person2_id: str, 
             total_time = time.time() - start_time
             logger.info(f"PERF: Total time (no path found): {total_time:.3f}s")
             if min_distance > 0:
-                return f'{{"path": null, "distance": -1, "relationship_chain": [], "description": "No relationship path found with minimum distance {min_distance} using allowed relationship types: {allowed_relationships}. Try reducing min_distance or using different relationship types."}}'
+                return {
+                    "path": None,
+                    "distance": -1,
+                    "relationship_chain": [],
+                    "description": f"No relationship path found with minimum distance {min_distance} using allowed relationship types: {allowed_relationships}. Try reducing min_distance or using different relationship types."
+                }
             else:
-                return f'{{"path": null, "distance": -1, "relationship_chain": [], "description": "No relationship path found with allowed relationship types: {allowed_relationships}"}}'
+                return {
+                    "path": None,
+                    "distance": -1,
+                    "relationship_chain": [],
+                    "description": f"No relationship path found with allowed relationship types: {allowed_relationships}"
+                }
         
         # Generate relationship chain description
         chain_start = time.time()
@@ -881,28 +896,28 @@ def _find_shortest_relationship_path_internal(person1_id: str, person2_id: str, 
         total_time = time.time() - start_time
         logger.info(f"PERF: Total shortest path operation took {total_time:.3f}s")
         
-        return json.dumps(result, indent=2)
+        return result
     
     except Exception as e:
-        return f"Error finding relationship path: {e}\n{traceback.format_exc()}"
+        return {"error": f"Error finding relationship path: {e}\n{traceback.format_exc()}"}
 
 
-def _find_all_relationship_paths_internal(person1_id: str, person2_id: str, allowed_relationships: str, gedcom_ctx, max_distance: int = 15, max_paths: int = 10) -> str:
+def _find_all_relationship_paths_internal(person1_id: str, person2_id: str, allowed_relationships: str, gedcom_ctx, max_distance: int = 15, max_paths: int = 10) -> Dict[str, Any]:
     """Find all relationship paths between two people, sorted by distance
     
     Args:
         person1_id: First person's ID
         person2_id: Second person's ID  
         allowed_relationships: Comma-separated list of allowed relationship types:
-                              - \"parent\" (parent-child relationships)
-                              - \"spouse\" (marriage relationships)
-                              - \"sibling\" (siblings through common parents)
-                              - \"all\" (default: all relationship types)
+                              - "parent" (parent-child relationships)
+                              - "spouse" (marriage relationships)
+                              - "sibling" (siblings through common parents)
+                              - "all" (default: all relationship types)
         max_distance: Maximum relationship distance to search (default: 15)
         max_paths: Maximum number of paths to return (default: 10)
     
     Returns:
-        JSON with all paths found, sorted from shortest to longest
+        Dict with all paths found, sorted from shortest to longest
     """
     logger = logging.getLogger(__name__)
     
@@ -911,12 +926,12 @@ def _find_all_relationship_paths_internal(person1_id: str, person2_id: str, allo
     person2 = get_person_details_internal(person2_id, gedcom_ctx)
     
     if not person1:
-        return f"Person not found: {person1_id}"
+        return {"error": f"Person not found: {person1_id}"}
     if not person2:
-        return f"Person not found: {person2_id}"
+        return {"error": f"Person not found: {person2_id}"}
     
     if person1_id == person2_id:
-        return json.dumps({"paths": [{"path": [person1_id], "distance": 0, "relationship_chain": ["self"], "description": "Same person"}], "total_paths": 1})
+        return {"paths": [{"path": [person1_id], "distance": 0, "relationship_chain": ["self"], "description": "Same person"}], "total_paths": 1}
     
     # Validate parameters
     if max_distance < 1:
@@ -942,7 +957,7 @@ def _find_all_relationship_paths_internal(person1_id: str, person2_id: str, allo
         if not all_paths:
             total_time = time.time() - start_time
             logger.info(f"PERF: No paths found in {total_time:.3f}s")
-            return json.dumps({"paths": [], "total_paths": 0, "search_time": total_time})
+            return {"paths": [], "total_paths": 0, "search_time": total_time}
         
         # Sort paths by distance (shortest first)
         all_paths.sort(key=lambda p: p["distance"])
@@ -980,10 +995,10 @@ def _find_all_relationship_paths_internal(person1_id: str, person2_id: str, allo
             "search_time": total_time
         }
         
-        return json.dumps(result, indent=2)
+        return result
     
     except Exception as e:
-        return f"Error finding all relationship paths: {e}\n{traceback.format_exc()}"
+        return {"error": f"Error finding all relationship paths: {e}\n{traceback.format_exc()}"}
 
 def _find_all_paths_dfs(start_node, end_node, allowed_relationships, gedcom_ctx, max_depth, max_paths):
     """Internal DFS function to find all paths"""
