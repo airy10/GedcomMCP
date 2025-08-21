@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 from src.gedcom_mcp.gedcom_context import GedcomContext
 from src.gedcom_mcp.gedcom_data_access import load_gedcom_file
 from src.gedcom_mcp.gedcom_data_management import _find_next_available_id, _add_person_internal
-from src.gedcom_mcp.gedcom_search import _find_shortest_relationship_path_internal, _find_all_relationship_paths_internal
+from src.gedcom_mcp.gedcom_search import _find_shortest_relationship_path_internal, _find_all_relationship_paths_internal, _get_person_neighbors_lazy
 from src.gedcom_mcp.gedcom_analysis import _get_statistics_internal, get_living_status
 
 
@@ -110,6 +110,46 @@ class TestGedcomEdgeCases(unittest.TestCase):
         result = json.loads(result_json)
         self.assertIn("distance", result)
         self.assertNotEqual(result["distance"], -1)
+
+    def test_get_person_neighbors_lazy_structure(self):
+        """Test that _get_person_neighbors_lazy returns the correct data structure"""
+        # Test getting neighbors for a person with all relationship types
+        neighbors = _get_person_neighbors_lazy("@I1@", {"parent", "spouse", "child"}, self.gedcom_ctx)
+        
+        # Should return a list
+        self.assertIsInstance(neighbors, list)
+        
+        # Each neighbor should be a tuple of (person_id, weight, relationship_type)
+        if neighbors:
+            for neighbor in neighbors:
+                self.assertIsInstance(neighbor, tuple)
+                self.assertEqual(len(neighbor), 3)
+                person_id, weight, relationship_type = neighbor
+                self.assertIsInstance(person_id, str)
+                self.assertIsInstance(weight, int)
+                self.assertIsInstance(relationship_type, str)
+        
+        # John Smith (@I1@) should have a spouse (Jane Doe @I2@) and a child (Junior Smith @I3@)
+        neighbor_ids = [neighbor[0] for neighbor in neighbors]
+        self.assertIn("@I2@", neighbor_ids)  # Spouse
+        self.assertIn("@I3@", neighbor_ids)  # Child
+
+    def test_get_person_neighbors_lazy_empty_relationships(self):
+        """Test _get_person_neighbors_lazy with empty relationship types"""
+        # Test with no allowed relationship types
+        neighbors = _get_person_neighbors_lazy("@I1@", set(), self.gedcom_ctx)
+        self.assertIsInstance(neighbors, list)
+        self.assertEqual(len(neighbors), 0)
+
+    def test_get_person_neighbors_lazy_single_relationship_type(self):
+        """Test _get_person_neighbors_lazy with single relationship type"""
+        # Test with only spouse relationships
+        neighbors = _get_person_neighbors_lazy("@I1@", {"spouse"}, self.gedcom_ctx)
+        self.assertIsInstance(neighbors, list)
+        
+        # Should only include spouse relationships
+        for neighbor in neighbors:
+            self.assertEqual(neighbor[2], "spouse")
 
 
 class TestGedcomErrorHandling(unittest.TestCase):
