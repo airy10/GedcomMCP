@@ -8,7 +8,7 @@ from .gedcom_context import GedcomContext
 from datetime import datetime
 from collections import Counter # Added this import
 from gedcom.element.individual import IndividualElement
-from .gedcom_data_access import get_person_details_internal
+from .gedcom_data_access import get_person_details_internal, _get_events_internal
 from .gedcom_utils import normalize_string, _get_gedcom_tag_from_attribute_type, _normalize_genealogy_date, _normalize_genealogy_place
 from .gedcom_constants import EVENT_TYPES, ATTRIBUTE_TYPES
 
@@ -353,6 +353,33 @@ def _get_timeline_internal(person_id: str, gedcom_ctx: GedcomContext) -> List[Di
     return events
 
 
+
+def _collect_ancestors_recursive(pid: str, current_level: int, max_levels: int, collected: list, gedcom_ctx: GedcomContext):
+    if current_level > max_levels:
+        return
+
+    person = get_person_details_internal(pid, gedcom_ctx)
+    if person and person.parents:
+        for parent_id in person.parents:
+            person_entry = (parent_id, current_level + 1)
+            if person_entry not in collected:
+                collected.append(person_entry)
+                _collect_ancestors_recursive(parent_id, current_level + 1, max_levels, collected, gedcom_ctx)
+
+def _get_ancestors_recursive(pid: str, current_level: int, max_levels: int, gedcom_ctx: GedcomContext):
+    if current_level > max_levels:
+        return None
+
+    person = get_person_details_internal(pid, gedcom_ctx)
+    if not person:
+        return None
+
+    ancestors = {person.id: {}}
+    if person.parents:
+        for parent_id in person.parents:
+            ancestors[person.id][parent_id] = _get_ancestors_recursive(parent_id, current_level + 1, max_levels, gedcom_ctx)
+    return ancestors
+
 def _get_ancestors_internal(pid: str, gedcom_ctx: GedcomContext, generations: int = 3, format: str = 'nested'):
     """
     Get ancestors of a person for a specified number of generations.
@@ -372,6 +399,33 @@ def _get_ancestors_internal(pid: str, gedcom_ctx: GedcomContext, generations: in
         return ancestors
     else:
         return _get_ancestors_recursive(pid, 1, generations, gedcom_ctx)
+
+
+def _collect_descendants_recursive(pid: str, current_level: int, max_levels: int, collected: list, gedcom_ctx: GedcomContext):
+    if current_level > max_levels:
+        return
+
+    person = get_person_details_internal(pid, gedcom_ctx)
+    if person and person.children:
+        for child_id in person.children:
+            person_entry = (child_id, current_level + 1)
+            if person_entry not in collected:
+                collected.append(person_entry)
+                _collect_descendants_recursive(child_id, current_level + 1, max_levels, collected, gedcom_ctx)
+
+def _get_descendants_recursive(pid: str, current_level: int, max_levels: int, gedcom_ctx: GedcomContext):
+    if current_level > max_levels:
+        return None
+
+    person = get_person_details_internal(pid, gedcom_ctx)
+    if not person:
+        return None
+
+    descendants = {person.id: {}}
+    if person.children:
+        for child_id in person.children:
+            descendants[person.id][child_id] = _get_descendants_recursive(child_id, current_level + 1, max_levels, gedcom_ctx)
+    return descendants
 
 def _get_descendants_internal(pid: str, gedcom_ctx: GedcomContext, generations: int = 3, format: str = 'nested'):
     """
@@ -523,17 +577,17 @@ def _get_surname_statistics_internal(gedcom_ctx: GedcomContext, surname: str = N
                 name_str = str(raw_name)
             else:
                 continue
-                
-                # Extract surname (typically after the last space or in //)
-                surname_match = re.search(r'/([^/]+)/', name_str)
-                if surname_match:
-                    surname_found = surname_match.group(1).strip()
-                else:
-                    # Fallback: assume last word is surname
-                    parts = name_str.split()
-                    surname_found = parts[-1] if parts else "Unknown"
-                
-                surname_counts[surname_found] = surname_counts.get(surname_found, 0) + 1
+
+            # Extract surname (typically after the last space or in //)
+            surname_match = re.search(r'/([^/]+)/', name_str)
+            if surname_match:
+                surname_found = surname_match.group(1).strip()
+            else:
+                # Fallback: assume last word is surname
+                parts = name_str.split()
+                surname_found = parts[-1] if parts else "Unknown"
+            
+            surname_counts[surname_found] = surname_counts.get(surname_found, 0) + 1
         
         if surname:
             # Return info about specific surname
@@ -587,13 +641,14 @@ def _get_date_range_analysis_internal(gedcom_ctx: GedcomContext) -> str:
         # Process family elements for marriage years using family lookup dictionary
         for family_elem in gedcom_ctx.family_lookup.values():
             # Extract marriage year
-            marriage_data = family_elem.get_marriage_data()
-            if marriage_data:
-                marriage_date = marriage_data[0] if isinstance(marriage_data, tuple) else str(marriage_data)
-                if marriage_date:
-                    year_match = re.search(r'\b(1[0-9]\d{2}|20\d{2})\b', str(marriage_date))
-                    if year_match:
-                        marriage_years.append(int(year_match.group(1)))
+            marriages = family_elem.get_marriages()
+            if marriages:
+                for marriage in marriages:
+                    marriage_date = marriage[0] if isinstance(marriage, tuple) else str(marriage)
+                    if marriage_date:
+                        year_match = re.search(r'\b(1[0-9]\d{2}|20\d{2})\b', str(marriage_date))
+                        if year_match:
+                            marriage_years.append(int(year_match.group(1)))
         
         result = "Date Range Analysis:\n"
         
@@ -770,7 +825,6 @@ def get_common_ancestors_internal(person_ids_list: List[str], gedcom_ctx: Gedcom
     if not all_ancestors:
         raise ValueError("No ancestors found for any person")
     
-    # Start with first person's ancestors, then intersect with others
     common_ancestor_ids = set(all_ancestors[person_ids_list[0]].keys())
     for person_id in person_ids_list[1:]:
         common_ancestor_ids &= set(all_ancestors[person_id].keys())

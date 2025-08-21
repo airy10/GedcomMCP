@@ -74,7 +74,7 @@ class NodePriority:
         """
         Calculates the heuristic values using the provided GEDCOM context.
         """
-        from gedcom_utils import extract_birth_year
+        from .gedcom_utils import extract_birth_year
         
         birth_year = extract_birth_year(self.person_id, gedcom_ctx)
 

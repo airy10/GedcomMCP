@@ -1,0 +1,853 @@
+0 HEAD
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 CHAR UTF-8
+1 SOUR GedcomMCP
+2 VERS 1.0a1
+2 NAME GedcomMCP - Genealogy MCP Server
+0 @I1@ INDI
+1 NAME Napoleon I
+1 SEX M
+1 BIRT
+2 DATE 15 AUG 1769
+2 PLAC Ajaccio, Corsica, France
+1 DEAT
+2 DATE 5 MAY 1821
+2 PLAC Longwood, Saint Helena
+1 NOTE @N1@
+1 FAMC @F1@
+1 OCCU Emperor of the French, General, Statesman
+1 FAMS @F2@
+1 FAMS @F3@
+0 @N1@ NOTE French general and statesman. First Consul of the French Republic (1799-1804). Emperor of the French (1804-1814, 1815). King of Italy (1805-1814). Protector of the Confederation of the Rhine (1806-1813). Born as Napoleone Buonaparte. Rose to p
+1 CONC rominence during the French Revolution and became a military hero. Crowned himself Emperor on December 2, 1804. Won major victories including Marengo, Austerlitz, Jena, and Wagram. Invaded Russia in 1812 with catastrophic results. Defeated at Leipz
+1 CONC ig (1813) and Waterloo (1815). Exiled to Elba (1814) and later to Saint Helena where he died. Wikipedia: https://en.wikipedia.org/wiki/Napoleon
+0 @I2@ INDI
+1 NAME Carlo Maria Buonaparte
+1 SEX M
+1 FAMS @F1@
+1 BIRT
+2 DATE 27 MAR 1746
+2 PLAC Ajaccio, Corsica (then part of the Republic of Genoa)
+1 DEAT
+2 DATE 24 FEB 1785
+2 PLAC Montpellier, Kingdom of France
+1 NOTE @N15@
+1 OCCU Attorney, Politician
+1 FAMC @F12@
+0 @I3@ INDI
+1 NAME Maria Letizia Ramolino
+1 SEX F
+1 FAMS @F1@
+1 BIRT
+2 DATE 24 AUG 1750
+2 PLAC Ajaccio, Corsica (then part of the Republic of Genoa)
+1 DEAT
+2 DATE 2 FEB 1836
+2 PLAC Rome, Papal States
+1 NOTE @N16@
+0 @F1@ FAM
+1 HUSB @I2@
+1 WIFE @I3@
+1 CHIL @I1@
+1 CHIL @I7@
+1 CHIL @I8@
+1 CHIL @I9@
+1 CHIL @I13@
+1 CHIL @I14@
+1 CHIL @I15@
+1 CHIL @I16@
+0 @I4@ INDI
+1 NAME Joséphine de Beauharnais
+1 SEX F
+1 BIRT
+2 DATE 23 JUN 1763
+2 PLAC Les Trois-Îlets, Martinique
+1 DEAT
+2 DATE 29 MAY 1814
+2 PLAC Rueil-Malmaison, Kingdom of France
+1 NOTE @N2@
+1 OCCU Empress of the French, Queen of Italy, Patron of the Arts, Horticulturist
+1 FAMS @F2@
+1 FAMS @F6@
+0 @N2@ NOTE Empress of the French (1804-1810) and Queen of Italy (1805-1810). First wife of Napoleon I. Born Marie Josèphe Rose Tascher de La Pagerie. Had two children from her first marriage: Eugène and Hortense de Beauharnais. Marriage to Napoleon annul
+1 CONC led in 1810. Died of pneumonia in 1814. Notable patron of the arts and horticulturist. Wikipedia: https://en.wikipedia.org/wiki/Joséphine_de_Beauharnais
+0 @F2@ FAM
+1 HUSB @I1@
+1 WIFE @I4@
+0 @I5@ INDI
+1 NAME Marie Louise of Austria
+1 SEX F
+1 BIRT
+2 DATE 12 DEC 1791
+2 PLAC Hofburg Palace, Vienna, Archduchy of Austria
+1 DEAT
+2 DATE 17 DEC 1847
+2 PLAC Parma, Duchy of Parma
+1 NOTE @N3@
+1 OCCU Empress of the French, Queen of Italy, Duchess of Parma
+1 FAMS @F3@
+1 FAMC @F9@
+0 @N3@ NOTE Empress of the French (1810-1814) and Queen of Italy (1810-1814). Second wife of Napoleon I. Daughter of Francis II, Holy Roman Emperor. Mother of Napoleon II, Duke of Reichstadt. Married Napoleon by proxy in 1810 to secure peace between Austr
+1 CONC ia and France. Became Duchess of Parma, Piacenza, and Guastalla after Napoleon's first exile. Had a long-term relationship with Count Adam Albert von Neipperg. Wikipedia: https://en.wikipedia.org/wiki/Marie_Louise,_Duchess_of_Parma
+0 @F3@ FAM
+1 HUSB @I1@
+1 WIFE @I5@
+1 CHIL @I6@
+0 @I6@ INDI
+1 NAME Napoleon II, Duke of Reichstadt
+1 SEX M
+1 BIRT
+2 DATE 20 MAR 1811
+2 PLAC Tuileries Palace, Paris, First French Empire
+1 DEAT
+2 DATE 22 JUL 1832
+2 PLAC Schönbrunn Palace, Vienna, Austrian Empire
+1 NOTE @N4@
+1 OCCU Titular Emperor of the French, King of Rome, Duke of Reichstadt
+1 FAMC @F3@
+0 @N4@ NOTE Napoleon II, Duke of Reichstadt, King of Rome. Son of Napoleon I and Marie Louise of Austria. Born during the height of his father's power. His father abdicated twice (1814, 1815) in his favor, but coalition forces and the Bourbon restoration
+1 CONC  prevented him from ever ruling France. Lived his entire adult life in Austria under the title Duke of Reichstadt. Received a military education but was politically isolated and restricted by Austrian authorities. Died young of tuberculosis, bringi
+1 CONC ng an end to his direct line's claim to the French throne. Posthumously nicknamed "L'Aiglon" (The Eaglet). Remains transferred to Les Invalides in Paris in 1940. Wikipedia: https://en.wikipedia.org/wiki/Napoleon_II
+0 @I7@ INDI
+1 NAME Joseph Bonaparte
+1 SEX M
+1 BIRT
+2 DATE 7 JAN 1768
+2 PLAC Corte, Corsica
+1 DEAT
+2 DATE 28 JUL 1844
+2 PLAC Florence, Grand Duchy of Tuscany
+1 NOTE @N5@
+1 OCCU Lawyer, Diplomat, Politician, King of Naples, King of Spain
+1 FAMC @F1@
+0 @N5@ NOTE King of Naples (1806–1808) and King of Spain and the Indies (1808–1813). Elder brother of Napoleon I. Trained as a lawyer, served in the Council of Five Hundred. Installed as King of Naples by Napoleon, then as King of Spain. Faced massive Spa
+1 CONC nish revolt (Peninsular War) and was largely unpopular. Abdicated in 1813 after French defeat at Vitoria. Lived in the United States (1817–1832) at Point Breeze, New Jersey. Claimed the title of Emperor of the French after Napoleon II's death in 18
+1 CONC 32 but did little to assert it. Wikipedia: https://en.wikipedia.org/wiki/Joseph_Bonaparte
+0 @I8@ INDI
+1 NAME Lucien Bonaparte
+1 SEX M
+1 BIRT
+2 DATE 21 MAY 1775
+2 PLAC Ajaccio, Corsica, Kingdom of France
+1 DEAT
+2 DATE 29 JUN 1840
+2 PLAC Viterbo, Papal States
+1 NOTE @N6@
+1 OCCU Politician, Diplomat, Minister of the Interior, President of the Council of Five Hundred
+1 FAMC @F1@
+0 @N6@ NOTE French politician and diplomat. Younger brother of Napoleon I. Served as President of the Council of Five Hundred and Minister of the Interior. Participated in the Coup of 18 Brumaire that brought Napoleon to power. Opposed Napoleon's declarat
+1 CONC ion as Emperor and went into self-imposed exile to Rome. Made Prince of Canino by Pope Pius VII. Died in Viterbo, Papal States. Wikipedia: https://en.wikipedia.org/wiki/Lucien_Bonaparte
+0 @I9@ INDI
+1 NAME Louis Bonaparte
+1 SEX M
+1 BIRT
+2 DATE 2 SEP 1778
+2 PLAC Ajaccio, Corsica, France
+1 DEAT
+2 DATE 25 JUL 1846
+2 PLAC Livorno, Tuscany
+1 NOTE @N7@
+1 OCCU French Army Officer, King of Holland, Constable of France
+1 FAMC @F1@
+1 FAMS @F5@
+0 @N7@ NOTE King of Holland (1806–1810). Younger brother of Napoleon I. Served with Napoleon in the French campaign in Egypt and Syria. Appointed King of Holland by Napoleon I in 1806. Attempted to be an independent Dutch ruler, learning the Dutch languag
+1 CONC e. Abdicated as King of Holland on 1 July 1810. Father of Napoleon III. Died in Livorno while traveling in Italy. Wikipedia: https://en.wikipedia.org/wiki/Louis_Bonaparte
+0 @F4@ FAM
+1 HUSB @I9@
+1 WIFE @I10@
+0 @I10@ INDI
+1 NAME Hortense de Beauharnais
+1 SEX F
+1 BIRT
+2 DATE 10 APR 1783
+2 PLAC Paris, France
+1 DEAT
+2 DATE 5 OCT 1837
+2 PLAC Arenenberg, Thurgau, Switzerland
+1 NOTE @N8@
+1 OCCU Queen of Holland, Musical Composer, Writer
+1 FAMS @F5@
+1 FAMC @F6@
+0 @N8@ NOTE Queen of Holland (1806–1810) as the wife of King Louis Bonaparte. Daughter of Alexandre de Beauharnais and Joséphine Tascher de la Pagerie (who later married Napoleon Bonaparte). Mother of Napoleon III. Accomplished amateur musical composer; k
+1 CONC nown for composing marches, including "Partant pour la Syrie." Died of cancer in 1837. Wikipedia: https://en.wikipedia.org/wiki/Hortense_de_Beauharnais
+0 @F5@ FAM
+1 HUSB @I9@
+1 WIFE @I10@
+1 CHIL @I46@
+0 @I11@ INDI
+1 NAME Alexandre de Beauharnais
+1 SEX M
+1 BIRT
+2 DATE 28 MAY 1760
+2 PLAC Fort-Royal (now Fort-de-France), Martinique, France
+1 DEAT
+2 DATE 23 JUL 1794
+2 PLAC Paris, France
+1 NOTE @N9@
+1 OCCU Politician, General, President of the Constituent National Assembly
+1 FAMS @F6@
+1 FAMC @F8@
+0 @N9@ NOTE French politician and general during the French Revolution. Father of Hortense de Beauharnais and Eugène de Beauharnais. Husband of Marie Josèphe Rose Tascher de La Pagerie (who later became Empress Joséphine of France). Served as President of
+1 CONC  the Constituent National Assembly. Achieved the rank of General of Division, commanding the Army of the Rhine. Executed by guillotine on 23 July 1794, during the Reign of Terror. Wikipedia: https://en.wikipedia.org/wiki/Alexandre_de_Beauharnais
+0 @F6@ FAM
+1 HUSB @I11@
+1 WIFE @I4@
+1 CHIL @I10@
+1 CHIL @I12@
+0 @I12@ INDI
+1 NAME Eugène de Beauharnais
+1 SEX M
+1 BIRT
+2 DATE 3 SEP 1781
+2 PLAC Paris, France
+1 DEAT
+2 DATE 21 FEB 1824
+2 PLAC Munich, Bavaria
+1 NOTE @N10@
+1 OCCU Statesman, Military Officer, Viceroy of Italy
+1 FAMC @F6@
+0 @N10@ NOTE French statesman and military officer. Son of Alexandre de Beauharnais and Joséphine Tascher de la Pagerie. Stepson of Napoleon Bonaparte. Viceroy of Italy (1805-1814). Duke of Leuchtenberg (from 1817). Prince of Eichstätt (from 1817). Prince
+1 CONC  of Venice (from 1807). Grand Duke of Frankfurt (1813, briefly). Arch-Chancellor of State of the Empire of France. Died in Munich after suffering apoplexy. Wikipedia: https://en.wikipedia.org/wiki/Eugène_de_Beauharnais
+0 @I13@ INDI
+1 NAME Pauline Bonaparte
+1 SEX F
+1 BIRT
+2 DATE 20 OCT 1780
+2 PLAC Maison Bonaparte, Ajaccio, Corsica
+1 DEAT
+2 DATE 9 JUN 1825
+2 PLAC Florence, Tuscany
+1 NOTE @N11@
+1 OCCU Princess, Duchess of Guastalla
+1 FAMC @F1@
+0 @N11@ NOTE Princess, briefly Duchess of Guastalla (1806), Princess consort of Sulmona and Rossano (1803-1825). Younger sister of Napoleon I. Only Bonaparte sibling to visit Napoleon during his exile on Elba. Married Charles Leclerc and later Camillo Bor
+1 CONC ghese, Prince of Sulmona. Died in Florence in 1825. Wikipedia: https://en.wikipedia.org/wiki/Pauline_Bonaparte
+0 @I14@ INDI
+1 NAME Caroline Bonaparte
+1 SEX F
+1 BIRT
+2 DATE 25 MAR 1782
+2 PLAC Ajaccio, Corsica, Kingdom of France
+1 DEAT
+2 DATE 18 MAY 1839
+2 PLAC Florence, Grand Duchy of Tuscany
+1 NOTE @N12@
+1 OCCU Princess, Queen of Naples, Grand Duchess of Berg and Cleves
+1 FAMC @F1@
+1 FAMS @F10@
+0 @N12@ NOTE Queen consort of Naples (1808–1815). Younger sister of Napoleon I. Married Joachim Murat, Marshal of the Empire, later King of Naples. Grand Duchess of Berg and Cleves (1806–1808). Regent of Naples on four separate occasions. Died in Florence
+1 CONC  during exile. Wikipedia: https://en.wikipedia.org/wiki/Caroline_Bonaparte
+0 @I15@ INDI
+1 NAME Elisa Bonaparte
+1 SEX F
+1 BIRT
+2 DATE 3 JAN 1777
+2 PLAC Ajaccio, Corsica, France
+1 DEAT
+2 DATE 7 AUG 1820
+2 PLAC Trieste, Austrian Empire
+1 NOTE @N13@
+1 OCCU Princess, Monarch, Patron of the Arts
+1 FAMC @F1@
+0 @N13@ NOTE Princess of Lucca and Piombino (1805–1814) and Grand Duchess of Tuscany (1809–1814). Younger sister of Napoleon I. Implemented legal, educational, and social reforms in her territories. Promoted the arts, particularly sculpture, and supported
+1 CONC  public health initiatives. Fled Tuscany in 1814 due to the advancing allied forces during Napoleon's decline. Died in Trieste in 1820. Wikipedia: https://en.wikipedia.org/wiki/Elisa_Bonaparte
+0 @I16@ INDI
+1 NAME Jérôme Bonaparte
+1 SEX M
+1 BIRT
+2 DATE 15 NOV 1784
+2 PLAC Ajaccio, Corsica, Kingdom of France
+1 DEAT
+2 DATE 24 JUN 1860
+2 PLAC Vilgénis (now Massy), Seine-et-Oise, France
+1 NOTE @N14@
+1 OCCU French Navy Officer, King of Westphalia, Marshal of France
+1 FAMC @F1@
+0 @N14@ NOTE King of Westphalia (1807–1813). Youngest brother of Napoleon I. Married Elizabeth Patterson in Baltimore in 1803; marriage annulled by Napoleon in 1805. Later married Catharina of Württemberg. Participated in Napoleonic Wars, including the Ru
+1 CONC ssian campaign of 1812 and the Battle of Waterloo in 1815. Held various official roles during the Second French Empire under his nephew, Napoleon III. Died in 1860 and was buried at Les Invalides in Paris. Wikipedia: https://en.wikipedia.org/wiki/J
+1 CONC érôme_Bonaparte
+0 @N15@ NOTE Corsican attorney and politician. Father of Napoleon Bonaparte and several other Bonaparte siblings who became European royalty. Initially worked as a secretary and personal assistant to Pasquale Paoli. Later became a French government offici
+1 CONC al after Corsica's annexation. Served as aide to Pasquale Paoli in resistance against the Republic of Genoa. Following French annexation of Corsica, switched allegiance to the French regime. Became Corsica's official representative at the French ro
+1 CONC yal court in Versailles. Died in Montpellier, leaving his family financially destitute. Wikipedia: https://en.wikipedia.org/wiki/Carlo_Buonaparte
+0 @N16@ NOTE Noblewoman and mother of Napoleon Bonaparte and several other Bonaparte siblings who became European royalty. Her primary role was managing the household and raising her children. After her son Napoleon became Emperor, she held an informal bu
+1 CONC t significant position in French society as "Madame Mère" (Mother of the Emperor). Fled to the mountains with her husband during Pasquale Paoli's resistance against French rule, while pregnant with Napoleon. Gave birth to Napoleon Bonaparte in Ajac
+1 CONC cio Cathedral. Became a widow at age 35. Died in Rome, outliving her son Napoleon by fifteen years. Wikipedia: https://en.wikipedia.org/wiki/Letizia_Ramolino
+0 @I17@ INDI
+1 NAME François de Beauharnais
+1 SEX M
+1 BIRT
+2 DATE 1714
+2 PLAC
+1 DEAT
+2 DATE 1800
+2 PLAC France
+1 NOTE @N17@
+1 OCCU Governor of Martinique, Rear Admiral
+1 FAMC @F7@
+1 FAMS @F8@
+1 FAMC @F14@
+0 @N17@ NOTE Marquis de La Ferté-Beauharnais. Governor of Martinique. Chef d'escadre des armées royales (Rear Admiral in the Royal Armies). Acquired the seigneurie of La Ferté-Avrain in Sologne in 1752. Elevated to the rank of Marquis de La Ferté-Beauharn
+1 CONC ais by royal letters patent in 1764. Maternal great-grandfather of Napoleon III, Emperor of the French. Wikipedia: https://en.wikipedia.org/wiki/François_de_Beauharnais
+0 @I18@ INDI
+1 NAME Claude de Beauharnais
+1 SEX M
+1 FAMS @F7@
+1 BIRT
+2 DATE 16 JAN 1717
+2 PLAC Rochefort, France
+1 DEAT
+2 DATE 25 DEC 1784
+2 PLAC Paris, France
+1 NOTE @N25@
+1 OCCU Nobleman
+1 FAMS @F14@
+0 @I19@ INDI
+1 NAME Renée Hardouineau
+1 SEX F
+1 FAMS @F7@
+0 @F7@ FAM
+1 HUSB @I18@
+1 WIFE @I19@
+1 CHIL @I17@
+0 @I20@ INDI
+1 NAME Marie-Anne Pivart de Chastullé
+1 SEX F
+1 FAMS @F8@
+0 @F8@ FAM
+1 HUSB @I17@
+1 WIFE @I20@
+1 CHIL @I21@
+1 CHIL @I11@
+0 @I21@ INDI
+1 NAME François de Beauharnais
+1 SEX M
+1 FAMC @F8@
+0 @I22@ INDI
+1 NAME Francis II, Holy Roman Emperor
+1 SEX M
+1 BIRT
+2 DATE 12 FEB 1768
+2 PLAC Florence, Grand Duchy of Tuscany
+1 DEAT
+2 DATE 2 MAR 1835
+2 PLAC Vienna, Austrian Empire
+1 NOTE @N18@
+1 OCCU Holy Roman Emperor, Emperor of Austria, King of Hungary, Croatia and Bohemia
+1 FAMS @F9@
+0 @N18@ NOTE Last Holy Roman Emperor (1792-1806) and first Emperor of Austria (1804-1835). Father of Marie Louise, second wife of Napoleon I. Led the Holy Roman Empire into the French Revolutionary Wars. Suffered defeats against Napoleon, including at Aus
+1 CONC terlitz (1805). In response to Napoleon crowning himself Emperor, assumed the title Emperor of Austria (1804). Abdicated as Holy Roman Emperor in 1806 after Napoleon created the Confederation of the Rhine. Forced to cede territory and marry his dau
+1 CONC ghter Marie Louise to Napoleon after defeat in the War of the Fifth Coalition (1809). Turned against Napoleon in 1813, leading to Napoleon's defeat in the War of the Sixth Coalition. Presided over the Congress of Vienna (1815) through his chancello
+1 CONC r Klemens von Metternich. Died in Vienna in 1835. Wikipedia: https://en.wikipedia.org/wiki/Francis_II,_Holy_Roman_Emperor
+0 @I23@ INDI
+1 NAME Maria Teresa of Naples and Sicily
+1 SEX F
+1 BIRT
+2 DATE 6 JUN 1772
+2 PLAC Royal Palace, Naples, Kingdom of Naples
+1 DEAT
+2 DATE 13 APR 1807
+2 PLAC Hofburg Palace, Vienna, Austrian Empire
+1 NOTE @N19@
+1 OCCU Holy Roman Empress, Empress of Austria, Queen consort of Hungary and Bohemia
+1 FAMS @F9@
+0 @N19@ NOTE Holy Roman Empress (1792-1806), Empress of Austria (1804-1807), and Queen consort of Hungary and Bohemia (1792-1807). Mother of Marie Louise, second wife of Napoleon I. Married her double first cousin Archduke Francis (later Francis II) in 17
+1 CONC 90. Took an active interest in politics and served as an adviser to her husband. Known as a conservative force and critic of Napoleon. Important patron of Viennese music. Died of tuberculous pleurisy in 1807, one week after giving birth to her 12th
+1 CONC  child. Wikipedia: https://en.wikipedia.org/wiki/Maria_Teresa_of_Naples_and_Sicily
+0 @F9@ FAM
+1 HUSB @I22@
+1 WIFE @I23@
+1 CHIL @I5@
+1 CHIL @I24@
+1 CHIL @I25@
+1 CHIL @I26@
+1 CHIL @I28@
+1 CHIL @I29@
+1 CHIL @I30@
+1 CHIL @I31@
+1 CHIL @I32@
+1 CHIL @I33@
+0 @I24@ INDI
+1 NAME Ferdinand I, Emperor of Austria
+1 SEX M
+1 FAMC @F9@
+0 @I25@ INDI
+1 NAME Maria Leopoldina
+1 SEX F
+1 FAMC @F9@
+0 @I26@ INDI
+1 NAME Clementina, Princess of Salerno
+1 SEX F
+1 FAMC @F9@
+0 @I27@ INDI
+1 NAME Archduke Joseph Franz Leopold
+1 SEX M
+0 @I28@ INDI
+1 NAME Archduke Joseph Franz Leopold
+1 SEX M
+1 FAMC @F9@
+0 @I29@ INDI
+1 NAME Maria Caroline, Crown Princess of Saxony
+1 SEX F
+1 FAMC @F9@
+0 @I30@ INDI
+1 NAME Archduke Franz Karl
+1 SEX M
+1 FAMC @F9@
+0 @I31@ INDI
+1 NAME Archduchess Marie Anne
+1 SEX F
+1 FAMC @F9@
+0 @I32@ INDI
+1 NAME Archduke Johann Nepomuk
+1 SEX M
+1 FAMC @F9@
+0 @I33@ INDI
+1 NAME Archduchess Amalie Theresa
+1 SEX F
+1 FAMC @F9@
+0 @I34@ INDI
+1 NAME Joachim Murat
+1 SEX M
+1 BIRT
+2 DATE 25 MAR 1767
+2 PLAC Labastide-Fortunière (now Labastide-Murat), Quercy, Kingdom of France
+1 DEAT
+2 DATE 13 OCT 1815
+2 PLAC Pizzo Calabro, Calabria, Kingdom of Naples
+1 NOTE @N20@
+1 OCCU Cavalry Officer, Marshal of the Empire, King of Naples
+1 FAMS @F10@
+0 @N20@ NOTE Marshal of the Empire and King of Naples. Husband of Caroline Bonaparte, Napoleon Bonaparte's youngest sister. Played a key role in the 13 Vendémiaire (1795), helping suppress a royalist uprising in Paris under Napoleon Bonaparte. Led famous
+1 CONC  cavalry charges at battles such as Austerlitz, Jena, Eylau, and Borodino. Appointed Grand Duke of Berg in 1806. Made King of Naples in 1808, ruling until 1815. Defeated decisively at the Battle of Tolentino (May 1815). Fled to Corsica, then attemp
+1 CONC ted an invasion of Calabria, which failed. Captured and sentenced to death by King Ferdinand IV of Naples. Executed by firing squad on 13 October 1815 in Pizzo Calabro. Wikipedia: https://en.wikipedia.org/wiki/Joachim_Murat
+0 @F10@ FAM
+1 HUSB @I34@
+1 WIFE @I14@
+1 CHIL @I35@
+1 CHIL @I36@
+1 CHIL @I37@
+1 CHIL @I38@
+1 CHIL @I38@
+0 @I35@ INDI
+1 NAME Achille Charles Louis Napoléon Murat
+1 SEX M
+1 FAMC @F10@
+0 @I36@ INDI
+1 NAME Marie Letizia Josephine Annonciade Murat
+1 SEX F
+1 FAMC @F10@
+0 @I37@ INDI
+1 NAME Lucien Charles Joseph Napoléon Murat
+1 SEX M
+1 FAMC @F10@
+0 @I38@ INDI
+1 NAME Louise Julie Caroline Murat
+1 SEX F
+1 FAMC @F10@
+1 FAMC @F10@
+0 @I39@ INDI
+1 NAME Giuseppe Maria Buonaparte
+1 SEX M
+1 BIRT
+2 DATE 31 MAY 1713
+2 PLAC Ajaccio, Corsica
+1 DEAT
+2 DATE 13 DEC 1763
+2 PLAC Ajaccio, Corsica
+1 NOTE @N21@
+1 OCCU Politician
+1 FAMC @F11@
+1 FAMS @F12@
+0 @N21@ NOTE Corsican politician. Father of Carlo Buonaparte, who was the father of Napoleon I of France. Delegate representing the City of Ajaccio in the Council of Corte (1749). Died in Ajaccio in 1763. Wikipedia: https://en.wikipedia.org/wiki/Giuseppe_
+1 CONC Maria_Buonaparte
+0 @I40@ INDI
+1 NAME Sebastiano Nicola Buonaparte
+1 SEX M
+1 BIRT
+2 DATE 1683
+2 PLAC
+1 DEAT
+2 DATE 1720
+2 PLAC
+1 FAMS @F11@
+0 @I41@ INDI
+1 NAME Maria Anna Tusoli
+1 SEX F
+1 FAMS @F11@
+0 @F11@ FAM
+1 HUSB @I40@
+1 WIFE @I41@
+1 CHIL @I39@
+0 @I42@ INDI
+1 NAME Maria Saveria Paravicini
+1 SEX F
+1 FAMS @F12@
+0 @F12@ FAM
+1 HUSB @I39@
+1 WIFE @I42@
+1 CHIL @I2@
+1 CHIL @I43@
+1 CHIL @I44@
+1 CHIL @I45@
+0 @I43@ INDI
+1 NAME Maria Gertrude Buonaparte
+1 SEX F
+1 FAMC @F12@
+0 @I44@ INDI
+1 NAME Sebastiano Buonaparte
+1 SEX M
+1 FAMC @F12@
+0 @I45@ INDI
+1 NAME Marianna Buonaparte
+1 SEX F
+1 FAMC @F12@
+0 @I46@ INDI
+1 NAME Napoleon III
+1 SEX M
+1 BIRT
+2 DATE 20 APR 1808
+2 PLAC Paris, France
+1 DEAT
+2 DATE 9 JAN 1873
+2 PLAC Chislehurst, Kent, England
+1 NOTE @N22@
+1 OCCU President of France, Emperor of the French, Military Commander
+1 FAMC @F5@
+1 FAMS @F13@
+0 @N22@ NOTE President of France (1848-1852) and Emperor of the French (1852-1870). Son of Louis Bonaparte (King of Holland, younger brother of Napoleon I) and Hortense de Beauharnais (daughter of Napoleon I's wife Joséphine de Beauharnais). Elected Presi
+1 CONC dent of the Second Republic in December 1848 with 74.2% of the vote. Staged a coup d'état in December 1851. Proclaimed himself Emperor of the French on 2 December 1852. Implemented major domestic reforms including reconstruction of Paris under Haus
+1 CONC smann. Allied with Britain in the Crimean War (1853-1856) against Russia. Supported Italian unification through the Second Italian War of Independence (1859). Intervened in Mexico (1862-1867) establishing the Second Mexican Empire. Defeated and cap
+1 CONC tured at the Battle of Sedan on 2 September 1870. Swiftly dethroned as the Third Republic was proclaimed in Paris. Released from German custody and went into exile in England. Died in exile in 1873. Wikipedia: https://en.wikipedia.org/wiki/Napoleon
+1 CONC _III
+0 @I47@ INDI
+1 NAME Eugénie de Montijo
+1 SEX F
+1 BIRT
+2 DATE 5 MAY 1826
+2 PLAC Granada, Spain
+1 DEAT
+2 DATE 11 JUL 1920
+2 PLAC Madrid, Spain
+1 NOTE @N23@
+1 OCCU Empress of the French, Regent of France, Socialite, Patron of the Arts
+1 FAMS @F13@
+0 @N23@ NOTE Empress of the French (1853-1870) and Regent of France. Wife of Napoleon III. Born María Eugenia Ignacia Agustina de Palafox y Kirkpatrick. Educated in France, Spain, and England. Became involved in Bonapartist politics in her youth. Married
+1 CONC  Louis-Napoléon Bonaparte (Napoleon III) in 1853, becoming Empress of the French. Gave birth to her only son, the Prince Imperial, in 1856 after a difficult labour. Actively participated in public life, accompanying the Emperor and hosting events.
+1 CONC  Acted as Regent during the Emperor's absences, including during the Italian Wars. Advocated for women's rights, notably in education. Influenced conservative and clerical policies, opposing Italian unification. Played a significant role in the art
+1 CONC s and fashion, setting major trends. Was a key figure pushing for the Franco-Prussian War in 1870. Served as de facto head of state during the early weeks of the Franco-Prussian War. Fled to England after the fall of the Second Empire in 1870. Live
+1 CONC d in exile in England after 1870, residing at Camden Place, Chislehurst, and later Farnborough Hill and Villa Cyrnos. Outlived both her husband (1873) and her son (1879, killed in the Zulu War). Spent her later life commemorating her family and the
+1 CONC  Second Empire. Donated her yacht and funded hospitals during World War I. Died in Madrid in 1920 and was interred in the Imperial Crypt at St Michael's Abbey. Wikipedia: https://en.wikipedia.org/wiki/Eugénie_de_Montijo
+0 @F13@ FAM
+1 HUSB @I46@
+1 WIFE @I47@
+1 CHIL @I48@
+0 @I48@ INDI
+1 NAME Louis-Napoléon, Prince Imperial
+1 SEX M
+1 BIRT
+2 DATE 16 MAR 1856
+2 PLAC Tuileries Palace, Paris, French Empire
+1 DEAT
+2 DATE 1 JUN 1879
+2 PLAC Sobhuza's kraal near Ulundi, Zulu Kingdom
+1 NOTE @N24@
+1 OCCU Head of the House of Bonaparte, Military Officer
+1 FAMC @F13@
+0 @N24@ NOTE Head of the House of Bonaparte (1873–1879). Son of Napoleon III and Empress Eugénie de Montijo. Baptised on 14 June 1856 at Notre Dame Cathedral; godparents included Pope Pius IX and Queen Josephine of Sweden. Educated under General Frossard
+1 CONC  and tutor Augustin Filon; attended King's College London and the Royal Military Academy, Woolwich. Accompanied his father during the Franco-Prussian War (1870–1871) as a sub-lieutenant; fled to Belgium and then England after the fall of the Second
+1 CONC  Empire. Lived in England at Camden Place, Chislehurst, after the abolition of the French Empire. Proclaimed "Napoleon IV" by Bonapartists upon his father's death in 1873. Trained as a British Army officer and joined the Anglo-Zulu War in 1879, des
+1 CONC pite objections. Killed in a skirmish with Zulu forces on 1 June 1879 during a reconnaissance mission in Zululand. His death caused an international sensation and marked the end of dynastic hopes for the Bonapartist restoration. Wikipedia: https://
+1 CONC en.wikipedia.org/wiki/Napoléon,_Prince_Imperial
+0 @N25@ NOTE French nobleman. Member of the prominent House of Beauharnais, a noble family in France. His descendants played significant roles in European nobility, including connections to royalty and nobility in France, Holland, Baden, Sweden, Norway, B
+1 CONC razil, and Russia.
+0 @I49@ INDI
+1 NAME Marie-Anne-Françoise Mouchard de la Garde
+1 SEX F
+1 FAMS @F14@
+0 @F14@ FAM
+1 HUSB @I18@
+1 WIFE @I49@
+1 CHIL @I17@
+1 CHIL @I50@
+1 CHIL @I51@
+0 @I50@ INDI
+1 NAME Françoise de Beauharnais
+1 SEX F
+1 FAMC @F14@
+0 @I51@ INDI
+1 NAME Anne de Beauharnais
+1 SEX F
+1 FAMC @F14@
+0 @I52@ INDI
+1 NAME Paul Barras
+1 SEX M
+1 BIRT
+2 DATE 30 JUN 1755
+2 PLAC Fox-Amphoux, France
+1 DEAT
+2 DATE 29 JAN 1829
+2 PLAC Chaillot (present-day Paris), France
+1 NOTE @N26@
+1 OCCU Politician, Nobleman, Military Officer
+0 @N26@ NOTE French politician, nobleman (Vicomte de Barras), and military officer. Member of the National Convention (1792-1795) and the Directory (1795-1799). Played a key role in the Thermidorian Reaction (July 1794), helping to overthrow Robespierre.
+1 CONC  Commanded troops defending the Convention against Parisian National Guards (13 Vendémiaire, October 1795). Became one of the five Directors of the French Republic (November 1795). Allegedly facilitated the marriage between Joséphine de Beauharnais
+1 CONC  and Napoleon Bonaparte. Nominated Napoleon to command the Army of Italy (1796). Supported the Coup of 18 Fructidor (September 1797) to repress royalist/Girondist opposition. Supported Napoleon's Coup of 18 Brumaire (November 1799) but was sideline
+1 CONC d afterward. Lived in luxury, confined to his property, exiled to Brussels and Rome, interned in Montpellier. Returned after the fall of the Empire. Wikipedia: https://en.wikipedia.org/wiki/Paul_Barras
+0 @I53@ INDI
+1 NAME Charles Maurice de Talleyrand
+1 SEX M
+1 BIRT
+2 DATE 2 FEB 1754
+2 PLAC Paris, Kingdom of France
+1 DEAT
+2 DATE 17 MAY 1838
+2 PLAC Paris, Kingdom of France
+1 NOTE @N27@
+1 OCCU Clergyman, Statesman, Diplomat, Foreign Minister of France, Prime Minister of France
+1 FAMC @F15@
+0 @N27@ NOTE French secularized clergyman, statesman, and diplomat. Served as Foreign Minister of France under multiple regimes. Prime Minister of France (July-September 1815). Ambassador of France to the United Kingdom (1830-1834). Bishop of Autun (1788-
+1 CONC 1791). Agent-General of the Clergy (1780-1788). Born with a congenital limp that prevented military career, leading to church career. Studied theology at Collège d'Harcourt and University of Paris. Ordained priest in 1779, became Bishop of Autun in
+1 CONC  1788. Laicized by Pope Pius VII in 1802. Represented clergy at Estates-General of 1789. Promoted anti-clericalism and nationalization of Church properties. Participated in drafting Declaration of Rights of Man and Citizen. Resigned bishopric in 17
+1 CONC 91 after excommunication. Fled to England in 1792, then to United States in 1794 during war with Britain. Returned to France in 1796 after name removed from émigré list. Instrumental in 1799 coup establishing French Consulate. Served as Foreign Min
+1 CONC ister, instrumental in Treaty of Amiens (1802). Made Sovereign Prince of Benevento in 1806. Resigned as Foreign Minister in 1807 but remained in Council of State. Opposed Napoleon's Spanish campaign and invasion of Russia. Conspired against Napoleo
+1 CONC n with Tsar Alexander I and Austrian officials. Led Sénat conservateur in establishing provisional government after Napoleon's fall. Chief French negotiator at Congress of Vienna (1814-1815). Served as Foreign Minister (1814-1815) and briefly as Pr
+1 CONC ime Minister (1815). Played key role in London Conference of 1830 leading to Belgian independence. Died after reconciling with Catholic Church and signing retraction of errors. Wikipedia: https://en.wikipedia.org/wiki/Charles_Maurice_de_Talleyrand-
+1 CONC Périgord
+0 @I54@ INDI
+1 NAME Count Charles Daniel de Talleyrand-Périgord
+1 SEX M
+1 FAMS @F15@
+0 @I55@ INDI
+1 NAME Alexandrine de Damas d'Antigny
+1 SEX F
+1 FAMS @F15@
+0 @F15@ FAM
+1 HUSB @I54@
+1 WIFE @I55@
+1 CHIL @I53@
+0 @I56@ INDI
+1 NAME Tsar Alexander I of Russia
+1 SEX M
+1 BIRT
+2 DATE 23 DEC 1777
+2 PLAC Winter Palace, Saint Petersburg, Russian Empire
+1 DEAT
+2 DATE 1 DEC 1825
+2 PLAC Alexander I Palace, Taganrog, Russian Empire
+1 NOTE @N28@
+1 OCCU Emperor of Russia, King of Poland, Grand Duke of Finland
+1 FAMC @F16@
+0 @N28@ NOTE Emperor of Russia (1801–1825), King of Poland (1815–1825), and Grand Duke of Finland (1809–1825). Became Emperor after his father, Paul I, was assassinated on 23 March 1801. His role in the conspiracy remains debated. Initiated liberal reform
+1 CONC s early in his reign, including educational improvements, legal system reorganization, and plans for a constitution (which were not realized). Initially opposed Napoleon, joining the War of the Third Coalition (1805). After defeats (e.g., Austerlit
+1 CONC z, Friedland), allied with Napoleon via the Treaty of Tilsit (1807). The alliance deteriorated, especially over Poland, leading to Napoleon's invasion of Russia in 1812. The French invasion was catastrophic for Napoleon, and Alexander played a key
+1 CONC  role in the coalition that defeated him. Helped shape post-Napoleonic Europe through the Congress of Vienna (1815) and formed the Holy Alliance to promote Christian values and suppress revolutionary movements. Became increasingly conservative, pur
+1 CONC ged liberal reforms, and relied on advisors like Aleksey Arakcheyev. Died of typhus during a southern trip in 1825. His death led to confusion and the Decembrist Revolt, after which his brother Nicholas I succeeded him. Known as "the Blessed" for h
+1 CONC is perceived role in saving Europe from Napoleon. Wikipedia: https://en.wikipedia.org/wiki/Alexander_I_of_Russia
+0 @I57@ INDI
+1 NAME Paul I of Russia
+1 SEX M
+1 FAMS @F16@
+0 @I58@ INDI
+1 NAME Sophie Dorothea of Württemberg
+1 SEX F
+1 FAMS @F16@
+0 @F16@ FAM
+1 HUSB @I57@
+1 WIFE @I58@
+1 CHIL @I56@
+0 @I59@ INDI
+1 NAME Arthur Wellesley, Duke of Wellington
+1 SEX M
+1 BIRT
+2 DATE 1 MAY 1769
+2 PLAC Dublin, Ireland
+1 DEAT
+2 DATE 14 SEP 1852
+2 PLAC Walmer, Kent, England
+1 NOTE @N29@
+1 OCCU Military Officer, Field Marshal, Prime Minister of the United Kingdom, Statesman
+1 FAMC @F17@
+0 @N29@ NOTE British Army officer and statesman. Rose to the rank of Field Marshal and twice served as Prime Minister of the United Kingdom (1828–1830 and November 1834). Key military roles included leadership in the Peninsular War against Napoleon and co
+1 CONC mmand at the Battle of Waterloo (1815), defeating Napoleon. Other roles included Commander-in-Chief of the British Army (1827–1852), Chancellor of the University of Oxford (1834–1852), and Governor of Plymouth. Victory over Tipu Sultan in the Fourt
+1 CONC h Anglo-Mysore War (1799). Key victories in the Second Anglo-Maratha War (1803). Leadership during the Peninsular War (1808–1814), significantly contributing to Napoleon's defeat. Victory at the Battle of Waterloo (1815), ending Napoleon's Hundred
+1 CONC  Days. First premiership marked by passage of the Catholic Relief Act 1829 and opposition to the Reform Act 1832. Second brief premiership and later political leadership in the House of Lords. Organized London's defense during the 1848 European rev
+1 CONC olutions. Died in 1852 and received a state funeral, one of only a few Britons to receive such honors. Wikipedia: https://en.wikipedia.org/wiki/Arthur_Wellesley,_1st_Duke_of_Wellington
+0 @I60@ INDI
+1 NAME Garret Wesley
+1 SEX M
+1 FAMS @F17@
+0 @I61@ INDI
+1 NAME Anne Hill-Trevor
+1 SEX F
+1 FAMS @F17@
+0 @F17@ FAM
+1 HUSB @I60@
+1 WIFE @I61@
+1 CHIL @I59@
+0 @I62@ INDI
+1 NAME Horatio Nelson
+1 SEX M
+1 BIRT
+2 DATE 29 SEP 1758
+2 PLAC Burnham Thorpe, Norfolk, England
+1 DEAT
+2 DATE 21 OCT 1805
+2 PLAC HMS Victory off Cape Trafalgar
+1 NOTE @N30@
+1 OCCU Royal Navy Officer, Vice-Admiral
+1 FAMC @F18@
+0 @N30@ NOTE Royal Navy officer, rising to the rank of Vice-Admiral of the White. Commands included the Mediterranean Fleet. Notable for his leadership in the French Revolutionary and Napoleonic Wars. Joined the navy through his uncle Maurice Suckling's i
+1 CONC nfluence in 1771. Served in the American War of Independence, including the Battle of Fort San Juan. Fought in the French Revolutionary Wars, including the Siege of Toulon (1793), Battle of Cape St Vincent (1797) where he lost his right arm, and Ba
+1 CONC ttle of the Nile (1798) where he was wounded in the eye. Created Viscount Nelson of the Nile and of Burnham Thorpe in 1801. Died at the Battle of Trafalgar (1805) after famously signaling "England expects that every man will do his duty". Awarded t
+1 CONC he title Duke of Bronte by the King of Sicily in 1799. His titles became extinct upon his death since he had no legitimate children. Wikipedia: https://en.wikipedia.org/wiki/Horatio_Nelson,_1st_Viscount_Nelson
+0 @I63@ INDI
+1 NAME Reverend Edmund Nelson
+1 SEX M
+1 FAMS @F18@
+0 @I64@ INDI
+1 NAME Catherine Suckling
+1 SEX F
+1 FAMS @F18@
+0 @F18@ FAM
+1 HUSB @I63@
+1 WIFE @I64@
+1 CHIL @I62@
+0 @I65@ INDI
+1 NAME Maximilien Robespierre
+1 SEX M
+1 BIRT
+2 DATE 6 MAY 1758
+2 PLAC Arras, Artois, Kingdom of France
+1 DEAT
+2 DATE 28 JUL 1794
+2 PLAC Place de la Révolution, Paris, France
+1 NOTE @N31@
+1 OCCU Lawyer, Politician, Deputy of the National Convention, Member of the Committee of Public Safety
+1 FAMC @F19@
+0 @N31@ NOTE Lawyer and politician. Key figure in the French Revolution. Deputy of the National Convention (1792-1794). Member of the Committee of Public Safety (1793-1794). President of the National Convention (twice in 1793-1794). President of the Jacob
+1 CONC in Club. Received scholarship to Collège Louis-le-Grand in Paris (1769). Graduated law school, became judge but resigned due to opposition to death penalty. Elected to Estates-General (1789), joined Jacobin Club. Became radical Jacobin leader, supp
+1 CONC orted democratic principles and rights for all men. Key figure in the Committee of Public Safety, instrumental in implementing the Terror. Lost support among Convention members, arrested on 9 Thermidor (27 July 1794). Tried and executed without tri
+1 CONC al along with around 90 others on 28 July 1794. Known for his progressive views on human rights, opposition to slavery, and advocacy for democratic principles, though his legacy remains highly controversial due to his role in the Reign of Terror. W
+1 CONC ikipedia: https://en.wikipedia.org/wiki/Maximilien_Robespierre
+0 @I66@ INDI
+1 NAME François Maximilien Barthélémy de Robespierre
+1 SEX M
+1 FAMS @F19@
+0 @I67@ INDI
+1 NAME Jacqueline Marguerite Carrault
+1 SEX F
+1 FAMS @F19@
+0 @F19@ FAM
+1 HUSB @I66@
+1 WIFE @I67@
+1 CHIL @I65@
+0 @I68@ INDI
+1 NAME Pasquale Paoli
+1 SEX M
+1 BIRT
+2 DATE 6 APR 1725
+2 PLAC Morosaglia, Corsica, Republic of Genoa
+1 DEAT
+2 DATE 5 FEB 1807
+2 PLAC London, England
+1 NOTE @N32@
+1 OCCU Corsican Patriot, Statesman, Military Leader, President of the Corsican Republic
+0 @N32@ NOTE Corsican patriot, statesman, and military leader. President of the Executive Council of the General Diet of the People of Corsica. General-in-Chief of Corsica (1755). President of the Corsican Republic (1755-1769). President of the Department
+1 CONC  of Corsica (1790). President of the British protectorate of Corsica (Anglo-Corsican Kingdom, 1794-1796). Born in Stretta, Morosaglia commune, Haute-Corse, Corsica. Educated in Naples with classical education. Joined the Corsican regiment of the ro
+1 CONC yal Neapolitan army in 1741, serving under his father. 1754: Elected General-in-Chief of Corsica by popular vote, replacing Theodor von Neuhoff. November 1755: Became President of the newly established Corsican Republic after ratification of its co
+1 CONC nstitution. Founded a university at Corte in 1765. 1768: France conquered Corsica following Genoa's cession of the island. 1769: Defeated at the Battle of Ponte Novu, forcing him into exile in Britain. In London, he became part of the Johnsonian ci
+1 CONC rcle and was given a pension by King George III. 1790: Returned to Corsica after the French Revolution granted amnesty to exiles. Elected President of the Department of Corsica unanimously. Initially supported the French Revolution but later broke
+1 CONC  with the revolutionaries. 1793: Split with the French Revolution over the execution of the King and aligned with royalists. Requested British protection, leading to the establishment of the Anglo-Corsican Kingdom (1794-1796). October 1795: Returne
+1 CONC d to exile in England after the British invited him to resign. Died in London on 5 February 1807. His remains were moved to Corsica in 1889. Idolized by a young Napoleon Bonaparte, though their relationship later became strained. Commemorated in th
+1 CONC e United States with several places named after him, including multiple towns called "Paoli". Wikipedia: https://en.wikipedia.org/wiki/Pasquale_Paoli
+0 @I69@ INDI
+1 NAME Giacinto Paoli
+1 SEX M
+0 @I70@ INDI
+1 NAME Toussaint Louverture
+1 SEX M
+1 BIRT
+2 DATE 20 MAY 1743
+2 PLAC Bréda plantation in Haut-du-Cap, Saint-Domingue (present-day Haiti)
+1 DEAT
+2 DATE 7 APR 1803
+2 PLAC Fort de Joux in La Cluse-et-Mijoux, France
+1 NOTE @N33@
+1 OCCU Slave, Freemen, Overseer, Plantation Owner, Military Leader, Governor-General of Saint-Domingue
+1 FAMC @F20@
+0 @N33@ NOTE Born into slavery, later became a freeman. Overseer of his former master's plantation. Wealthy slave owner (owned several coffee plantations). Military leader and general during the Haitian Revolution. Governor-General of Saint-Domingue (1797
+1 CONC -1802). Governor of Santo Domingo (1801-1802). Manumitted between 1772-1776, becoming an affranchi (ex-slave). Took the name Toussaint de Bréda after gaining freedom. Became a salaried employee and later overseer on the Bréda plantation. Accumulate
+1 CONC d wealth through plantation ownership and slave labor. Initially joined Georges Biassou's forces as lieutenant during the 1791 slave revolt. Allied with Spanish forces against Saint-Domingue Royalists (1793). Switched allegiance to Republican Franc
+1 CONC e after they abolished slavery (1794). Became prominent military leader, gaining recognition for strategic abilities. Signed treaties with Britain (1798) and the United States (1799). Controlled entire island of Hispaniola after taking Spanish Sant
+1 CONC o Domingo (1801). Promulgated Constitution of 1801 naming himself Governor-General for Life. Arrested by French forces under General Jean-Baptiste Brunet (1802). Deported to France and imprisoned at Fort de Joux. Died in prison April 7, 1803, possi
+1 CONC bly from exhaustion, malnutrition, or illness. His capture and death preceded Haitian independence, which was declared in 1804 by his lieutenant Jean-Jacques Dessalines. Wikipedia: https://en.wikipedia.org/wiki/Toussaint_Louverture
+0 @I71@ INDI
+1 NAME Hyppolite
+1 SEX M
+1 FAMS @F20@
+0 @I72@ INDI
+1 NAME Pauline
+1 SEX F
+1 FAMS @F20@
+0 @F20@ FAM
+1 HUSB @I71@
+1 WIFE @I72@
+1 CHIL @I70@
+0 @I73@ INDI
+1 NAME Jean-Baptiste Kléber
+1 SEX M
+1 BIRT
+2 DATE 9 MAR 1753
+2 PLAC Strasbourg, France
+1 DEAT
+2 DATE 14 JUN 1800
+2 PLAC Cairo, Ottoman Egypt
+1 NOTE @N34@
+1 OCCU Army Officer, Architect, General of Division
+0 @N34@ NOTE French army officer and architect. Served in multiple armies: French Royal Army (1769-1770), Imperial Army of the Holy Roman Emperor (1777-1783), and French Revolutionary Army (1792-1800). Reached rank of General of Division. Notable as Gover
+1 CONC nor of Alexandria and commander of French forces in Egypt. 1769: Enlisted in French Royal Army's Bercheny's Hussar Regiment. 1770-1774: Studied architecture, including time in Paris with Jean Chalgrin. 1777-1783: Served in Imperial Army of Holy Rom
+1 CONC an Emperor, participating in War of the Bavarian Succession. 1784-1792: Inspector of public buildings at Belfort. Designed several notable buildings including the Hôtel de Ville at Thann, Haut-Rhin (1787-1793), Château of Grandvillars (around 1790)
+1 CONC , and Canoness houses of Benedictine abbey of Masevaux (1781-1790). 1792: Joined French Revolutionary Army as part of 4th Battalion of Volunteers of Haut-Rhin. 1793: Distinguished himself at defense of Mainz; promoted to General of Division. Partic
+1 CONC ipated in suppression of Vendée Revolt, including battles of Tiffauges, Cholet, Le Mans, and Savenay. Served in Army of the Ardennes and Army of Sambre and Meuse. Key participant in War of the First Coalition, including the Siege of Mainz, Flanders
+1 CONC  Campaign (Battle of Fleurus), and Rhine Campaign of 1796 (Battle of Altenkirchen, Battle of Friedberg). 1798: Joined Napoleon's Egyptian campaign. 1799: Commanded vanguard in Syrian campaign; won victory at Battle of Mount Tabor. 1799-1800: Became
+1 CONC  commander of all French forces in Egypt after Napoleon's departure. Negotiated Convention of El-Arish, then won Battle of Heliopolis (March 1800). Re-took Cairo after revolt. Prominent freemason who brought freemasonry to Egypt. Founded Isis lodge
+1 CONC  in Cairo (January 1800) and served as its first master. 14 June 1800: Assassinated in Cairo by Suleiman al-Halabi, a Syrian theology student. Embalmed body repatriated to France. Initially held at Château d'If by Napoleon's order; later buried in
+1 CONC  Strasbourg (1838). Heart placed in Saint Louis Chapel in Les Invalides, Paris. Name inscribed on column 23 of southern pillar of Arc de Triomphe. Regarded as one of the greatest generals of the French revolutionary epoch. Wikipedia: https://en.wik
+1 CONC ipedia.org/wiki/Jean-Baptiste_Kléber
+0 @I74@ INDI
+1 NAME Master builder
+1 SEX M
+0 @I75@ INDI
+1 NAME Louis Antoine, Duke of Enghien
+1 SEX M
+1 BIRT
+2 DATE 2 AUG 1772
+2 PLAC Château de Chantilly, France
+1 DEAT
+2 DATE 21 MAR 1804
+2 PLAC Château de Vincennes, France
+1 NOTE @N35@
+1 OCCU Military Officer, Prince of the House of Bourbon
+1 FAMC @F21@
+0 @N35@ NOTE Duke of Enghien, Prince of the House of Bourbon. Military officer. Born Louis Antoine Henri de Bourbon at Château de Chantilly. First cousin of Louis-Philippe I, King of the French. Doubly descended from Louis XIV through his legitimated daug
+1 CONC hters Mademoiselle de Blois and Mademoiselle de Nantes. Last descendant of the House of Condé. Emigrated with his father and grandfather shortly after the Storming of the Bastille (1789). Served in the Army of Condé during the French Revolutionary
+1 CONC  Wars (1792). Participated in the Duke of Brunswick's unsuccessful invasion of France. Continued serving under his father and grandfather in the Condé army, distinguishing himself for bravery. After the peace of Lunéville (February 1801), he secret
+1 CONC ly married Princess Charlotte de Rohan. Took up residence at Ettenheim in Baden, near the Rhine. March 1804: Napoleon Bonaparte ordered his arrest based on alleged involvement in the Cadoudal Affair. 15 March 1804: French dragoons captured him acro
+1 CONC ss the Rhine and brought him to Strasbourg, then to Château de Vincennes. Tried by a hastily convened military commission presided over by General Pierre-Augustin Hulin. Charged with bearing arms against France and plotting to join a new coalition
+1 CONC  against France. 21 March 1804: Executed by firing squad in the moat of Château de Vincennes. His last words were reported as "I must die then at the hands of Frenchmen!" His execution shocked European royalty and aristocracy. Considered by many as
+1 CONC  "worse than a crime; it was a blunder". His death influenced Tsar Alexander I of Russia to curb Napoleon's power. Marked the end of the House of Condé line. Became a symbol of Napoleonic tyranny across Europe. Mentioned in literary works by Tolsto
+1 CONC y, Dumas, and others. Wikipedia: https://en.wikipedia.org/wiki/Louis_Antoine,_Duke_of_Enghien
+0 @I76@ INDI
+1 NAME Louis Henri de Bourbon, Prince de Condé
+1 SEX M
+1 FAMS @F21@
+0 @I77@ INDI
+1 NAME Bathilde d'Orléans
+1 SEX F
+1 FAMS @F21@
+0 @F21@ FAM
+1 HUSB @I76@
+1 WIFE @I77@
+1 CHIL @I75@

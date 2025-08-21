@@ -4,6 +4,8 @@ import heapq
 import time
 import logging
 import collections
+import json
+import traceback
 from typing import List, Set, Dict, Any, Tuple, Optional
 
 from .gedcom_models import NodePriority
@@ -730,7 +732,8 @@ def _find_shortest_relationship_path_internal(person1_id: str, person2_id: str, 
     logger = logging.getLogger(__name__)
     
     # Validate that both people exist
-    from gedcom_data_access import get_person_details_internal
+    person1 = get_person_details_internal(person1_id, gedcom_ctx)
+    person2 = get_person_details_internal(person2_id, gedcom_ctx)
     person1 = get_person_details_internal(person1_id, gedcom_ctx)
     person2 = get_person_details_internal(person2_id, gedcom_ctx)
     
@@ -756,7 +759,7 @@ def _find_shortest_relationship_path_internal(person1_id: str, person2_id: str, 
         allowed_relationships_lower = allowed_relationships.lower()
         
         if allowed_relationships_lower == "all":
-            allowed = {"parent", "spouse", "sibling"}
+            allowed = {"parent", "spouse", "sibling", "child"}
         elif allowed_relationships_lower == "default":
             allowed = {"parent", "spouse", "child"}  # Default: spouse, parents, children
         elif allowed_relationships_lower == "blood":
@@ -913,7 +916,7 @@ def _find_all_relationship_paths_internal(person1_id: str, person2_id: str, allo
         return f"Person not found: {person2_id}"
     
     if person1_id == person2_id:
-        return f'{"paths": [{"path": ["{person1_id}"], "distance": 0, "relationship_chain": ["self"], "description": "Same person"}], "total_paths": 1}'
+        return json.dumps({"paths": [{"path": [person1_id], "distance": 0, "relationship_chain": ["self"], "description": "Same person"}], "total_paths": 1})
     
     # Validate parameters
     if max_distance < 1:
@@ -927,7 +930,7 @@ def _find_all_relationship_paths_internal(person1_id: str, person2_id: str, allo
         # Parse allowed relationships
         allowed = set()
         if allowed_relationships.lower() == "all":
-            allowed = {"parent", "spouse", "sibling"}
+            allowed = {"parent", "spouse", "sibling", "child"}
         else:
             allowed = {rel.strip().lower() for rel in allowed_relationships.split(",")}
         
@@ -939,7 +942,7 @@ def _find_all_relationship_paths_internal(person1_id: str, person2_id: str, allo
         if not all_paths:
             total_time = time.time() - start_time
             logger.info(f"PERF: No paths found in {total_time:.3f}s")
-            return f'{"paths": [], "total_paths": 0, "search_time": {total_time:.3f}}'
+            return json.dumps({"paths": [], "total_paths": 0, "search_time": total_time})
         
         # Sort paths by distance (shortest first)
         all_paths.sort(key=lambda p: p["distance"])

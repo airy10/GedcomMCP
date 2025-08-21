@@ -43,7 +43,7 @@ _HUMAN_ATTRIBUTE_TO_GEDCOM_TAG = {
 }
 
 def normalize_string(text: str) -> str:
-    """Normalize string for comparison - removes accents, converts to lowercase
+    """Normalize string for comparison - removes accents, converts to lowercase, and normalizes whitespace
     
     Uses unidecode if available to handle accented characters (é → e, ñ → n, etc.)
     Falls back to simple case folding if unidecode is not installed.
@@ -51,6 +51,8 @@ def normalize_string(text: str) -> str:
     To install unidecode: pip install unidecode
     """
     if isinstance(text, str):
+        # Normalize whitespace to single spaces
+        text = re.sub(r'\s+', ' ', text.strip())
         if UNIDECODE_AVAILABLE:
             return unidecode(text).casefold()
         else:

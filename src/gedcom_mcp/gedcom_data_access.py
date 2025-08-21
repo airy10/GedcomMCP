@@ -7,7 +7,8 @@ from gedcom.element.individual import IndividualElement
 from gedcom.parser import Parser
 from .gedcom_context import GedcomContext, _rebuild_lookups
 from .gedcom_models import PersonDetails, PersonRelationships
-from .gedcom_utils import normalize_string, _normalize_genealogy_name, _normalize_genealogy_date, _normalize_genealogy_place
+from .gedcom_utils import normalize_string, _normalize_genealogy_name, _normalize_genealogy_date, _normalize_genealogy_place, PLACE_UTILS_AVAILABLE
+from .gedcom_place_utils import normalize_place_name, extract_geographic_hierarchy
 from .gedcom_constants import EVENT_TYPES, ATTRIBUTE_TYPES
 
 # Set up logging
@@ -412,7 +413,6 @@ def _get_events_internal(person_id: str, gedcom_ctx) -> List[Dict[str, Any]]:
                 for child_elem in person_child_elements:
                     tag = child_elem.get_tag()
                     
-                    # Handle known event types
                     if tag in EVENT_TYPES:
                         event_data = decode_event_details(child_elem, tag)
                         event_data["person_name"] = name_str
@@ -554,31 +554,32 @@ def _get_places_internal(query: Optional[str] = None, gedcom_ctx = None) -> List
             
             # Check for family events (marriages)
             elif element.get_tag() == "FAM":
-                marriage_data = element.get_marriage_data()
-                if marriage_data:
-                    marriage_place = None
-                    if isinstance(marriage_data, tuple):
-                        marriage_place = marriage_data[1] if len(marriage_data) > 1 else None
-                    else:
-                        try:
-                            marriage_place = marriage_data.get_place()
-                        except AttributeError:
-                            marriage_place = None
-                    
-                    if marriage_place:
-                        # Normalize place name using our helper
-                        normalized_name = _normalize_genealogy_place(marriage_place)
+                marriages = element.get_marriages()
+                if marriages:
+                    for marriage in marriages:
+                        marriage_place = None
+                        if isinstance(marriage, tuple):
+                            marriage_place = marriage[1] if len(marriage) > 1 else None
+                        else:
+                            try:
+                                marriage_place = marriage.get_place()
+                            except AttributeError:
+                                marriage_place = None
                         
-                        if normalized_name not in places:
-                            places[normalized_name] = {
-                                "name": normalized_name,
-                                "original_names": set(),
-                                "occurrences": 0,
-                                "event_types": set()
-                            }
-                        places[normalized_name]["original_names"].add(marriage_place)
-                        places[normalized_name]["occurrences"] += 1
-                        places[normalized_name]["event_types"].add("marriage")
+                        if marriage_place:
+                            # Normalize place name using our helper
+                            normalized_name = _normalize_genealogy_place(marriage_place)
+                            
+                            if normalized_name not in places:
+                                places[normalized_name] = {
+                                    "name": normalized_name,
+                                    "original_names": set(),
+                                    "occurrences": 0,
+                                    "event_types": set()
+                                }
+                            places[normalized_name]["original_names"].add(marriage_place)
+                            places[normalized_name]["occurrences"] += 1
+                            places[normalized_name]["event_types"].add("marriage")
         
         # Convert to list and filter if query provided
         places_list = []

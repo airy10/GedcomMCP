@@ -206,8 +206,9 @@ def _remove_event_internal(context, entity_id: str, event_type: str, date_to_mat
             if child.get_tag() == event_type_tag:
                 # If a date was specified, check if it matches
                 if date_to_match:
-                    date_element = child.get_child_element_by_tag("DATE")
-                    if date_element and date_element.get_value() == date_to_match:
+                    # Use get_child_value_by_tag instead of get_child_element_by_tag
+                    date_value = child.get_child_value_by_tag("DATE")
+                    if date_value and date_value == date_to_match:
                         event_to_remove = child
                         break
                 else:

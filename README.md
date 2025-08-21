@@ -87,6 +87,32 @@ To specify a different host or port for the HTTP transport:
 python src/gedcom_mcp/fastmcp_server.py --host 0.0.0.0 --port 8080
 ```
 
+## Running Tests
+
+To run all tests:
+
+```bash
+python -m pytest tests/
+```
+
+To run tests with verbose output:
+
+```bash
+python -m pytest tests/ -v
+```
+
+To run a specific test file:
+
+```bash
+python -m pytest tests/test_gedcom_data_access.py
+```
+
+To run a specific test:
+
+```bash
+python -m pytest tests/test_gedcom_data_access.py::TestGedcomDataAccess::test_load_gedcom_file
+```
+
 ## Project Structure
 
 - `src/gedcom_mcp/`: Main source code
