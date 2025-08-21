@@ -7,6 +7,7 @@ genealogy-specific name formats commonly found in GEDCOM files.
 import re
 from typing import Optional, List, Dict, Any
 from dataclasses import dataclass
+from nameparser import HumanName
 
 
 @dataclass
@@ -50,6 +51,9 @@ class GenealogyName:
 def parse_genealogy_name(name_string: str) -> GenealogyName:
     """Parse a genealogy name string and return a GenealogyName object.
     
+    Uses the nameparser library for robust name parsing that correctly
+    handles multi-word surnames like "van Buren" and "de la Cruz".
+    
     Handles common GEDCOM name formats:
     - Standard names: "John Smith", "Mary /Smith/"
     - Names with prefixes: "Mr. John Smith", "Rev. John Smith"
@@ -86,68 +90,32 @@ def parse_genealogy_name(name_string: str) -> GenealogyName:
         # Remove surname from name string for further processing
         name_string = re.sub(r'/[^/]+/', '', name_string).strip()
     
-    # Extract prefixes (Mr., Mrs., Ms., Dr., Rev., Sir, Lady, etc.)
-    prefix = None
-    prefix_match = re.match(r'(Mr\.?|Mrs\.?|Ms\.?|Miss|Mister|Madam|Dr\.?|Prof\.?|Rev\.?|Reverend|Sir|Lady|Lord|Dame)\s+', name_string, re.IGNORECASE)
-    if prefix_match:
-        prefix = prefix_match.group(1)
-        # Remove prefix from name string
-        name_string = name_string[len(prefix_match.group(0)):].strip()
+    # Use nameparser for robust name parsing
+    parsed = HumanName(name_string)
     
-    # Extract suffixes (Jr., Sr., II, III, IV, etc.)
-    suffix = None
-    suffix_pattern = r'\s+(Jr\.?|Sr\.?|II|III|IV|V|VI|Esq\.?|Esquire)$'
-    suffix_match = re.search(suffix_pattern, name_string, re.IGNORECASE)
-    if suffix_match:
-        suffix = suffix_match.group(1)
-        # Remove suffix from name string
-        name_string = name_string[:suffix_match.start()].strip()
+    # Extract components from nameparser result
+    title = parsed.title if parsed.title else None
+    first = parsed.first if parsed.first else ""
+    middle = parsed.middle if parsed.middle else ""
+    last = parsed.last if parsed.last else (surname or "")
+    suffix = parsed.suffix if parsed.suffix else None
     
-    # Extract titles (different from prefixes - more professional/academic)
-    title = None
-    title_match = re.match(r'(Dr\.?|Doctor|Prof\.?|Professor|Sir|Dame|Lord|Lady|Rev\.?|Reverend)\s+', name_string, re.IGNORECASE)
-    if title_match and not prefix:
-        title = title_match.group(1)
-        # Remove title from name string
-        name_string = name_string[len(title_match.group(0)):].strip()
-    
-    # Split remaining text into given names
+    # Combine given names (first + middle)
     given_names = []
-    if name_string:
-        # Handle multiple given names
-        given_names = name_string.split()
-    
-    # If we still don't have a surname but we have given names, 
-    # and the last given name might be a surname (if no // were used)
-    if not surname and given_names and not re.search(r'/[^/]+/', original):
-        # Heuristic: if the last word is capitalized and not a known prefix/title,
-        # treat it as surname
-        last_word = given_names[-1]
-        if (last_word.isupper() or 
-            (len(last_word) > 1 and last_word[0].isupper() and last_word[1:].islower())):
-            # Check if it's not a known prefix or title
-            if not _is_prefix_or_title(last_word):
-                surname = given_names.pop()
+    if first:
+        given_names.append(first)
+    if middle:
+        given_names.extend(middle.split())
     
     return GenealogyName(
         original_text=original,
         given_names=given_names,
-        surname=surname,
-        prefix=prefix,
+        surname=last,
+        prefix=title,  # Using title as prefix to match our existing convention
         suffix=suffix,
         nickname=nickname,
         title=title
     )
-
-
-def _is_prefix_or_title(word: str) -> bool:
-    """Check if a word is a known prefix or title."""
-    prefixes_titles = {
-        'MR', 'MRS', 'MS', 'MISS', 'MISTER', 'MADAM', 'DR', 'DOCTOR',
-        'PROF', 'PROFESSOR', 'REV', 'REVEREND', 'SIR', 'LADY', 'LORD', 'DAME',
-        'JR', 'SR', 'ESQ', 'ESQUIRE'
-    }
-    return word.upper() in prefixes_titles
 
 
 def normalize_name(name_string: str) -> str:
@@ -233,6 +201,56 @@ def find_name_variants(name_string: str) -> List[str]:
     return unique_variants
 
 
+def format_gedcom_name(genealogy_name: GenealogyName) -> str:
+    """Format a GenealogyName object into proper GEDCOM name format.
+    
+    Args:
+        genealogy_name: The GenealogyName object to format
+        
+    Returns:
+        A GEDCOM-formatted name string (e.g., "John /Smith/" or "Mr. John /Smith/ Jr.")
+    """
+    if not genealogy_name:
+        return ""
+    
+    parts = []
+    
+    # Add prefix if present
+    if genealogy_name.prefix:
+        parts.append(genealogy_name.prefix)
+    
+    # Add given names
+    if genealogy_name.given_names:
+        parts.append(" ".join(genealogy_name.given_names))
+    
+    # Add surname in GEDCOM format (enclosed in slashes)
+    if genealogy_name.surname:
+        parts.append(f"/{genealogy_name.surname}/")
+    
+    # Add suffix if present
+    if genealogy_name.suffix:
+        parts.append(genealogy_name.suffix)
+    
+    return " ".join(parts)
+
+
+def format_gedcom_name_from_string(name_string: str) -> str:
+    """Format a name string into proper GEDCOM name format.
+    
+    Args:
+        name_string: The name string to format (e.g., "John Smith")
+        
+    Returns:
+        A GEDCOM-formatted name string (e.g., "John /Smith/")
+    """
+    if not name_string:
+        return ""
+    
+    # Parse the name first
+    parsed_name = parse_genealogy_name(name_string)
+    return format_gedcom_name(parsed_name)
+
+
 # Example usage and testing
 if __name__ == "__main__":
     # Test cases
@@ -258,5 +276,6 @@ if __name__ == "__main__":
         print(f"Input: {name_str}")
         print(f"  Parsed: {parsed}")
         print(f"  Components: {parsed.to_dict()}")
+        print(f"  GEDCOM Format: {format_gedcom_name(parsed)}")
         print(f"  Variants: {find_name_variants(name_str)}")
         print()

@@ -5,7 +5,7 @@ import unittest
 # Add the parent directory to sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from src.gedcom_mcp.gedcom_name_utils import parse_genealogy_name, normalize_name, find_name_variants, _is_prefix_or_title, GenealogyName
+from src.gedcom_mcp.gedcom_name_utils import parse_genealogy_name, normalize_name, find_name_variants, GenealogyName, format_gedcom_name, format_gedcom_name_from_string
 
 
 class TestGedcomNameUtils(unittest.TestCase):
@@ -20,34 +20,53 @@ class TestGedcomNameUtils(unittest.TestCase):
         self.assertEqual(normalized_name, "john smith")
 
     def test_find_name_variants(self):
-        variants = find_name_variants("John /Smith/")
-        self.assertIn("John /Smith/", variants)  # Original is included
+        variants = find_name_variants("John Smith")
+        self.assertIn("John Smith", variants)
+        # The function creates "J. Smith" abbreviation, not just "John"
         self.assertIn("J. Smith", variants)
+        self.assertIn("Smith", variants)
 
-    def test_is_prefix_or_title(self):
-        """Test the internal _is_prefix_or_title helper function"""
-        # Test known prefixes and titles
-        self.assertTrue(_is_prefix_or_title("MR"))
-        self.assertTrue(_is_prefix_or_title("MRS"))
-        self.assertTrue(_is_prefix_or_title("MS"))
-        self.assertTrue(_is_prefix_or_title("DR"))
-        self.assertTrue(_is_prefix_or_title("PROF"))
-        self.assertTrue(_is_prefix_or_title("REV"))
-        self.assertTrue(_is_prefix_or_title("SIR"))
-        self.assertTrue(_is_prefix_or_title("LADY"))
-        self.assertTrue(_is_prefix_or_title("JR"))
-        self.assertTrue(_is_prefix_or_title("SR"))
-        self.assertTrue(_is_prefix_or_title("ESQ"))
+    def test_format_gedcom_name(self):
+        # Test basic name formatting
+        name_obj = GenealogyName(
+            original_text="John Smith",
+            given_names=["John"],
+            surname="Smith"
+        )
+        formatted = format_gedcom_name(name_obj)
+        self.assertEqual(formatted, "John /Smith/")
         
-        # Test case insensitivity
-        self.assertTrue(_is_prefix_or_title("mr"))
-        self.assertTrue(_is_prefix_or_title("Mr"))
+        # Test name with prefix and suffix
+        name_obj = GenealogyName(
+            original_text="Mr. John Smith Jr.",
+            given_names=["John"],
+            surname="Smith",
+            prefix="Mr.",
+            suffix="Jr."
+        )
+        formatted = format_gedcom_name(name_obj)
+        self.assertEqual(formatted, "Mr. John /Smith/ Jr.")
+
+    def test_format_gedcom_name_from_string(self):
+        # Test basic name formatting
+        formatted = format_gedcom_name_from_string("John Smith")
+        self.assertEqual(formatted, "John /Smith/")
         
-        # Test non-prefixes
-        self.assertFalse(_is_prefix_or_title("JOHN"))
-        self.assertFalse(_is_prefix_or_title("SMITH"))
-        self.assertFalse(_is_prefix_or_title(""))
-        self.assertFalse(_is_prefix_or_title("TEST"))
+        # Test name with prefix and suffix
+        formatted = format_gedcom_name_from_string("Mr. John Smith Jr.")
+        self.assertEqual(formatted, "Mr. John /Smith/ Jr.")
+        
+        # Test already formatted name
+        formatted = format_gedcom_name_from_string("Mary /Smith/")
+        self.assertEqual(formatted, "Mary /Smith/")
+        
+        # Test complex multi-word surnames - NOW WORKING CORRECTLY!
+        # With nameparser integration, these are now parsed correctly:
+        formatted = format_gedcom_name_from_string("Dr. Jane de la Cruz")
+        self.assertEqual(formatted, "Dr. Jane /de la Cruz/")
+        
+        formatted = format_gedcom_name_from_string("Dr. Carol van Buren")
+        self.assertEqual(formatted, "Dr. Carol /van Buren/")
 
 
 if __name__ == '__main__':

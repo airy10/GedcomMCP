@@ -5,8 +5,10 @@ from gedcom.element.individual import IndividualElement
 from gedcom.element.family import FamilyElement
 from gedcom.element.object import ObjectElement
 from gedcom.parser import Parser
+from gedcom.element.element import Element
 from .gedcom_models import PersonDetails, PersonRelationships
 from .gedcom_utils import _get_gedcom_tag_from_event_type
+from .gedcom_name_utils import format_gedcom_name_from_string
 
 
 
@@ -29,9 +31,12 @@ def _add_person_internal(context, name: str, gender: str) -> str:
     # Generate a new unique ID that doesn't exist in any lookup dictionary
     new_id = _find_next_available_id("@I", context.individual_lookup)
 
+    # Format the name properly for GEDCOM storage
+    formatted_name = format_gedcom_name_from_string(name)
+
     # Create new IndividualElement
     person = IndividualElement(level=0, pointer=new_id, tag="INDI", value="")
-    person.new_child_element("NAME", value=name)
+    person.new_child_element("NAME", value=formatted_name)
     person.new_child_element("SEX", value=gender)
 
     # Add the new person to the parser and lookups
@@ -407,7 +412,6 @@ def _create_note_internal(context, note_text: str) -> str:
     new_note_id = _find_next_available_id("@N", context.note_lookup)
 
     # Create new note element using Element (not ObjectElement which has default tag OBJE)
-    from gedcom.element.element import Element
     note = Element(level=0, pointer=new_note_id, tag="NOTE", value=note_text)
 
     # Add note to parser and lookup
@@ -577,24 +581,10 @@ def _update_person_details_internal(context, person_id: str, name: Optional[str]
                     surn_element.set_value(surname)
                     name_element.set_value("") 
                 else:
-                    if '/' not in name and ' ' in name:
-                        name_parts = name.rsplit(' ', 1)
-                        if len(name_parts) == 2:
-                            formatted_name = f"{name_parts[0].strip()} /{name_parts[1].strip()}/"
-                        else:
-                            formatted_name = name
-                    else:
-                        formatted_name = name
+                    formatted_name = format_gedcom_name_from_string(name)
                     name_element.set_value(formatted_name)
             else:
-                if '/' not in name and ' ' in name:
-                    name_parts = name.rsplit(' ', 1)
-                    if len(name_parts) == 2:
-                        formatted_name = f"{name_parts[0].strip()} /{name_parts[1].strip()}/"
-                    else:
-                        formatted_name = name
-                else:
-                    formatted_name = name
+                formatted_name = format_gedcom_name_from_string(name)
                 person.new_child_element("NAME", value=formatted_name)
         elif name == "":
             name_element = None
@@ -629,7 +619,6 @@ def _create_source_internal(context, title: str = "", author: str = "", publicat
     new_source_id = _find_next_available_id("@S", context.source_lookup)
 
     # Create new source element using Element (not ObjectElement which has default tag OBJE)
-    from gedcom.element.element import Element
     source = Element(level=0, pointer=new_source_id, tag="SOUR", value=title)
 
     # Add optional details
