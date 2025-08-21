@@ -21,16 +21,16 @@ class TestGedcomSearch(unittest.TestCase):
         load_gedcom_file(str(sample_ged_path), self.gedcom_ctx)
 
     def test_find_shortest_relationship_path_internal(self):
-        path = _find_shortest_relationship_path_internal("@I1@", "@I3@", "all", self.gedcom_ctx)
-        path_json = json.loads(path)
-        self.assertIn("path", path_json)
-        self.assertEqual(len(path_json['path']), 2)  # John Smith -> Junior Smith
+        result = _find_shortest_relationship_path_internal("@I1@", "@I3@", "all", self.gedcom_ctx)
+        self.assertIsInstance(result, dict)
+        self.assertIn("path", result)
+        self.assertEqual(len(result['path']), 2)  # John Smith -> Junior Smith
 
     def test_find_all_relationship_paths_internal(self):
-        paths = _find_all_relationship_paths_internal("@I1@", "@I3@", "all", self.gedcom_ctx)
-        paths_json = json.loads(paths)
-        self.assertIn("paths", paths_json)
-        self.assertGreater(len(paths_json['paths']), 0)
+        result = _find_all_relationship_paths_internal("@I1@", "@I3@", "all", self.gedcom_ctx)
+        self.assertIsInstance(result, dict)
+        self.assertIn("paths", result)
+        self.assertGreater(len(result['paths']), 0)
 
     def test_find_all_paths_to_ancestor_internal(self):
         paths = _find_all_paths_to_ancestor_internal("@I3@", "@I1@", self.gedcom_ctx)

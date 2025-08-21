@@ -989,6 +989,9 @@ async def find_shortest_relationship_path(person1_id: str, person2_id: str, ctx:
         
         # Call the internal function instead of duplicating the logic
         result = _find_shortest_relationship_path_internal(person1_id, person2_id, allowed_relationships, gedcom_ctx, max_distance, exclude_initial_spouse_children, min_distance)
+        # Convert dict to JSON string for the tool response
+        if isinstance(result, dict):
+            return json.dumps(result, indent=2)
         return result
         
     except Exception as e:
@@ -1040,6 +1043,9 @@ async def find_all_relationship_paths(person1_id: str, person2_id: str, ctx: Con
     try:
         # Call the internal function instead of duplicating the logic
         result = _find_all_relationship_paths_internal(person1_id, person2_id, allowed_relationships, gedcom_ctx, max_distance, max_paths)
+        # Convert dict to JSON string for the tool response
+        if isinstance(result, dict):
+            return json.dumps(result, indent=2)
         return result
     except Exception as e:
         import traceback

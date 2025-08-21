@@ -60,28 +60,36 @@ class TestGedcomEdgeCases(unittest.TestCase):
     def test_search_with_invalid_person_ids(self):
         """Test search functions with invalid person IDs"""
         # Test with non-existent person IDs
-        result_json = _find_shortest_relationship_path_internal("@INVALID@", "@I1@", "all", self.gedcom_ctx)
-        self.assertIn("Person not found: @INVALID@", result_json)
+        result = _find_shortest_relationship_path_internal("@INVALID@", "@I1@", "all", self.gedcom_ctx)
+        self.assertIsInstance(result, dict)
+        self.assertIn("error", result)
+        self.assertIn("Person not found: @INVALID@", result["error"])
         
-        result_json = _find_shortest_relationship_path_internal("@I1@", "@INVALID@", "all", self.gedcom_ctx)
-        self.assertIn("Person not found: @INVALID@", result_json)
+        result = _find_shortest_relationship_path_internal("@I1@", "@INVALID@", "all", self.gedcom_ctx)
+        self.assertIsInstance(result, dict)
+        self.assertIn("error", result)
+        self.assertIn("Person not found: @INVALID@", result["error"])
         
         # Test with same person ID
-        result_json = _find_shortest_relationship_path_internal("@I1@", "@I1@", "all", self.gedcom_ctx)
-        result = json.loads(result_json)
+        result = _find_shortest_relationship_path_internal("@I1@", "@I1@", "all", self.gedcom_ctx)
+        self.assertIsInstance(result, dict)
         self.assertEqual(result["distance"], 0)
         
         # Test all paths with invalid IDs
-        result_json = _find_all_relationship_paths_internal("@INVALID@", "@I1@", "all", self.gedcom_ctx)
-        self.assertIn("Person not found: @INVALID@", result_json)
+        result = _find_all_relationship_paths_internal("@INVALID@", "@I1@", "all", self.gedcom_ctx)
+        self.assertIsInstance(result, dict)
+        self.assertIn("error", result)
+        self.assertIn("Person not found: @INVALID@", result["error"])
 
     def test_search_with_empty_context(self):
         """Test search functions with empty context"""
         empty_ctx = GedcomContext()
         
         # Test with empty context
-        result_json = _find_shortest_relationship_path_internal("@I1@", "@I2@", "all", empty_ctx)
-        self.assertIn("Person not found: @I1@", result_json)
+        result = _find_shortest_relationship_path_internal("@I1@", "@I2@", "all", empty_ctx)
+        self.assertIsInstance(result, dict)
+        self.assertIn("error", result)
+        self.assertIn("Person not found: @I1@", result["error"])
 
     def test_analysis_with_empty_context(self):
         """Test analysis functions with empty context"""
@@ -97,19 +105,20 @@ class TestGedcomEdgeCases(unittest.TestCase):
     def test_search_with_invalid_relationship_types(self):
         """Test search with invalid relationship types"""
         # Test with unknown relationship type
-        result_json = _find_shortest_relationship_path_internal("@I1@", "@I3@", "unknown_type", self.gedcom_ctx)
+        result = _find_shortest_relationship_path_internal("@I1@", "@I3@", "unknown_type", self.gedcom_ctx)
         # Should still work but with no relationships allowed
-        result = json.loads(result_json)
+        self.assertIsInstance(result, dict)
         # If no relationships are allowed, it should not find a path
         self.assertIn("distance", result)
 
     def test_large_distance_limits(self):
         """Test search with large distance limits"""
         # Test with very large max_distance
-        result_json = _find_shortest_relationship_path_internal("@I1@", "@I3@", "all", self.gedcom_ctx, max_distance=1000)
-        result = json.loads(result_json)
+        result = _find_shortest_relationship_path_internal("@I1@", "@I3@", "all", self.gedcom_ctx, max_distance=1000)
+        self.assertIsInstance(result, dict)
+        # Should find the path (distance 1 in sample data)
         self.assertIn("distance", result)
-        self.assertNotEqual(result["distance"], -1)
+        self.assertEqual(result["distance"], 1)
 
 
 class TestGedcomErrorHandling(unittest.TestCase):
@@ -126,15 +135,17 @@ class TestGedcomErrorHandling(unittest.TestCase):
         mock_get_person_details.side_effect = Exception("Test exception")
         
         # This should be handled gracefully
-        result_json = _find_shortest_relationship_path_internal("@I1@", "@I3@", "all", self.gedcom_ctx)
-        # Should return an error message or handle gracefully
-        self.assertIsInstance(result_json, str)
+        result = _find_shortest_relationship_path_internal("@I1@", "@I3@", "all", self.gedcom_ctx)
+        # Should return a dict (either with error or successful result)
+        self.assertIsInstance(result, dict)
 
     def test_search_with_missing_parser(self):
         """Test search functions with missing parser"""
         ctx = GedcomContext()  # Empty context without parser
-        result_json = _find_shortest_relationship_path_internal("@I1@", "@I3@", "all", ctx)
-        self.assertIn("Person not found", result_json)
+        result = _find_shortest_relationship_path_internal("@I1@", "@I3@", "all", ctx)
+        self.assertIsInstance(result, dict)
+        self.assertIn("error", result)
+        self.assertIn("Person not found", result["error"])
 
 
 if __name__ == '__main__':
