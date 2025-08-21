@@ -49,8 +49,6 @@ def _get_attribute_statistics_internal(gedcom_ctx: GedcomContext, attribute_type
 
     return dict(attribute_counts)
 
-
-
 def _get_statistics_internal(gedcom_ctx: GedcomContext) -> Dict[str, Any]:
     """Get comprehensive statistics about the GEDCOM file"""
     if not gedcom_ctx.gedcom_parser:
@@ -64,8 +62,6 @@ def _get_statistics_internal(gedcom_ctx: GedcomContext) -> Dict[str, Any]:
             "total_sources": 0,
             "total_notes": 0,
             "total_repositories": 0,
-            "living_individuals": 0,
-            "deceased_individuals": 0,
             "males": 0,
             "females": 0,
             "unknown_gender": 0,
@@ -82,7 +78,6 @@ def _get_statistics_internal(gedcom_ctx: GedcomContext) -> Dict[str, Any]:
                 # Get gender
                 if hasattr(individual_elem, 'get_child_elements'):
                     child_elements = individual_elem.get_child_elements()
-                    has_death = False
                     
                     for child_elem in child_elements:
                         tag = child_elem.get_tag()
@@ -95,9 +90,6 @@ def _get_statistics_internal(gedcom_ctx: GedcomContext) -> Dict[str, Any]:
                                 stats["females"] += 1
                             else:
                                 stats["unknown_gender"] += 1
-                        
-                        elif tag == "DEAT":
-                            has_death = True
                         
                         elif tag in EVENT_TYPES:
                             event_name = EVENT_TYPES[tag]["name"]
@@ -130,11 +122,6 @@ def _get_statistics_internal(gedcom_ctx: GedcomContext) -> Dict[str, Any]:
                             place = value
                             stats["place_counts"][place] = stats["place_counts"].get(place, 0) + 1
                     
-                    if has_death:
-                        stats["deceased_individuals"] += 1
-                    else:
-                        stats["living_individuals"] += 1
-                
                 # Get surname
                 raw_name = individual_elem.get_name()
                 if isinstance(raw_name, tuple):
@@ -208,131 +195,6 @@ def _get_statistics_internal(gedcom_ctx: GedcomContext) -> Dict[str, Any]:
                     attribute_counts[attribute_value] += 1
 
     return dict(attribute_counts)
-# New function ends here
-
-def _get_statistics_internal(gedcom_ctx: GedcomContext) -> Dict[str, Any]:
-    """Get comprehensive statistics about the GEDCOM file"""
-    if not gedcom_ctx.gedcom_parser:
-        return {}
-    
-    try:
-        # PERFORMANCE OPTIMIZATION: Use lookup dictionaries for instant counts
-        stats = {
-            "total_individuals": len(gedcom_ctx.individual_lookup),
-            "total_families": len(gedcom_ctx.family_lookup),
-            "total_sources": 0,
-            "total_notes": 0,
-            "total_repositories": 0,
-            "living_individuals": 0,
-            "deceased_individuals": 0,
-            "males": 0,
-            "females": 0,
-            "unknown_gender": 0,
-            "event_counts": {},
-            "place_counts": {},
-            "surname_counts": {},
-            "birth_year_range": {"earliest": None, "latest": None},
-            "death_year_range": {"earliest": None, "latest": None}
-        }
-        
-        # Process individuals from lookup dictionary
-        for individual_elem in gedcom_ctx.individual_lookup.values():
-                
-                # Get gender
-                if hasattr(individual_elem, 'get_child_elements'):
-                    child_elements = individual_elem.get_child_elements()
-                    has_death = False
-                    
-                    for child_elem in child_elements:
-                        tag = child_elem.get_tag()
-                        value = child_elem.get_value()
-                        
-                        if tag == "SEX":
-                            if value == "M":
-                                stats["males"] += 1
-                            elif value == "F":
-                                stats["females"] += 1
-                            else:
-                                stats["unknown_gender"] += 1
-                        
-                        elif tag == "DEAT":
-                            has_death = True
-                        
-                        elif tag in EVENT_TYPES:
-                            event_name = EVENT_TYPES[tag]["name"]
-                            stats["event_counts"][event_name] = stats["event_counts"].get(event_name, 0) + 1
-                            
-                            # Extract dates for birth/death ranges
-                            if hasattr(child_elem, 'get_child_elements'):
-                                event_children = child_elem.get_child_elements()
-                                for event_child in event_children:
-                                    if event_child.get_tag() == "DATE":
-                                        date_str = event_child.get_value()
-                                        # Try to extract year
-                                        year_match = re.search(r'\b(1[0-9]{3}|20[0-9]{2})\b', date_str)
-                                        if year_match:
-                                            year = int(year_match.group(0))
-                                            
-                                            if tag == "BIRT":
-                                                if stats["birth_year_range"]["earliest"] is None or year < stats["birth_year_range"]["earliest"]:
-                                                    stats["birth_year_range"]["earliest"] = year
-                                                if stats["birth_year_range"]["latest"] is None or year > stats["birth_year_range"]["latest"]:
-                                                    stats["birth_year_range"]["latest"] = year
-                                            
-                                            elif tag == "DEAT":
-                                                if stats["death_year_range"]["earliest"] is None or year < stats["death_year_range"]["earliest"]:
-                                                    stats["death_year_range"]["earliest"] = year
-                                                if stats["death_year_range"]["latest"] is None or year > stats["death_year_range"]["latest"]:
-                                                    stats["death_year_range"]["latest"] = year
-                        
-                        elif tag == "PLAC":
-                            place = value
-                            stats["place_counts"][place] = stats["place_counts"].get(place, 0) + 1
-                    
-                    if has_death:
-                        stats["deceased_individuals"] += 1
-                    else:
-                        stats["living_individuals"] += 1
-                
-                # Get surname
-                raw_name = individual_elem.get_name()
-                if isinstance(raw_name, tuple):
-                    name_str = " ".join(str(part) for part in raw_name if part)
-                else:
-                    name_str = str(raw_name) if raw_name else ""
-                
-                # Extract surname (usually after /)
-                if "/" in name_str:
-                    parts = name_str.split("/")
-                    if len(parts) > 1:
-                        surname = parts[1].strip()
-                        if surname:
-                            stats["surname_counts"][surname] = stats["surname_counts"].get(surname, 0) + 1
-            
-        # Process families from lookup dictionary (already counted above)
-        # Process other element types that aren't in our lookup dictionaries
-        root_elements = gedcom_ctx.gedcom_parser.get_root_child_elements()
-        for element in root_elements:
-            element_type = element.get_tag()
-            
-            if element_type == "SOUR":
-                stats["total_sources"] += 1
-            elif element_type == "NOTE":
-                stats["total_notes"] += 1
-            elif element_type == "REPO":
-                stats["total_repositories"] += 1
-        
-        # Sort counts by frequency
-        stats["surname_counts"] = dict(sorted(stats["surname_counts"].items(), key=lambda x: x[1], reverse=True)[:20])
-        stats["place_counts"] = dict(sorted(stats["place_counts"].items(), key=lambda x: x[1], reverse=True)[:20])
-        stats["event_counts"] = dict(sorted(stats["event_counts"].items(), key=lambda x: x[1], reverse=True))
-        
-        return stats
-    except Exception as e:
-        # We'll need to import logger when this function is used
-        # logger.error(f"Error getting statistics: {e}")
-        return {}
-
 
 def _get_timeline_internal(person_id: str, gedcom_ctx: GedcomContext) -> List[Dict[str, Any]]:
     """Generate a chronological timeline of events for a person"""

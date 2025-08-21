@@ -25,6 +25,13 @@ class TestGedcomAnalysis(unittest.TestCase):
         self.assertEqual(stats['total_families'], 1)
         self.assertEqual(stats['males'], 2)
         self.assertEqual(stats['females'], 1)
+        # Check that both Birth and Death events are counted
+        self.assertIn('Birth', stats['event_counts'])
+        self.assertEqual(stats['event_counts']['Birth'], 3)
+        self.assertIn('Death', stats['event_counts'])
+        self.assertEqual(stats['event_counts']['Death'], 1)
+        self.assertIn('Occupation', stats['event_counts'])
+        self.assertEqual(stats['event_counts']['Occupation'], 1)
 
     def test_get_attribute_statistics_internal(self):
         stats = _get_attribute_statistics_internal(self.gedcom_ctx, 'OCCU')
