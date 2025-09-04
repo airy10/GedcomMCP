@@ -886,3 +886,54 @@ def search_gedcom(query: str, gedcom_ctx: GedcomContext, search_type: str = "all
         return {"people": [], "places": [], "events": [], "families": []}
 
 
+def fuzzy_search_person_internal(name: str, gedcom_ctx, threshold: int = 80, max_results: int = 50) -> list:
+    """Search for persons with fuzzy name matching.
+    
+    Args:
+        name: Search term to match against person names
+        gedcom_ctx: GEDCOM context
+        threshold: Minimum similarity score (0-100)
+        max_results: Maximum number of results to return
+    """
+    # Import fuzzy matching library
+    try:
+        from fuzzywuzzy import fuzz, process
+    except ImportError:
+        return [{"error": "fuzzywuzzy library not installed. Please install it with: pip install fuzzywuzzy python-levenshtein"}]
+    
+    if not gedcom_ctx.gedcom_parser:
+        return [{"error": "No GEDCOM file loaded. Please load a GEDCOM file first."}]
+    
+    # Prepare list of names for fuzzy matching
+    choices = []
+    person_lookup = {}
+    
+    for person_id, individual in gedcom_ctx.individual_lookup.items():
+        person_name = individual.get_name()
+        if isinstance(person_name, tuple):
+            person_name = " ".join(str(part) for part in person_name if part)
+        else:
+            person_name = str(person_name) if person_name else ""
+        
+        if person_name:  # Only include non-empty names
+            choices.append(person_name)
+            person_lookup[person_name] = person_id
+    
+    # Perform fuzzy search
+    results = process.extract(name, choices, limit=max_results)
+    
+    # Filter by threshold and format results
+    matches = []
+    for match_name, score in results:
+        if score >= threshold:
+            person_id = person_lookup[match_name]
+            person = get_person_details_internal(person_id, gedcom_ctx)
+            if person:
+                matches.append({
+                    "person": person.model_dump(),
+                    "similarity_score": score
+                })
+    
+    return matches
+
+

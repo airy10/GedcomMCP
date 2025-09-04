@@ -88,7 +88,8 @@ from .gedcom_models import PersonDetails, PersonRelationships, NodePriority
 from .gedcom_data_access import (
     get_person_details_internal, find_person_by_name, _get_relationships_internal, 
     _get_events_internal, decode_event_details, _get_places_internal, _get_notes_internal, _get_sources_internal,
-    search_gedcom, _extract_person_details, _get_person_relationships_internal, load_gedcom_file, save_gedcom_file, _get_person_attributes_internal
+    search_gedcom, _extract_person_details, _get_person_relationships_internal, load_gedcom_file, save_gedcom_file, _get_person_attributes_internal,
+    fuzzy_search_person_internal
 )
 from .gedcom_data_management import (
     _add_person_internal, _create_marriage_internal, _add_child_to_family_internal,
@@ -331,6 +332,18 @@ async def gedcom_search(query: str, ctx: Context, search_type: str = "all") -> s
         return str(results)
     else:
         return f"No results found for query: {query}"
+
+@mcp.tool()
+async def fuzzy_search_person(name: str, ctx: Context, threshold: int = 80, max_results: int = 50) -> list:
+    """Search for persons with fuzzy name matching.
+    
+    Args:
+        name: Search term to match against person names
+        threshold: Minimum similarity score (0-100)
+        max_results: Maximum number of results to return
+    """
+    gedcom_ctx = get_gedcom_context(ctx)
+    return fuzzy_search_person_internal(name, gedcom_ctx, threshold, max_results)
 
 @mcp.tool()
 async def get_statistics(ctx: Context) -> dict:
@@ -2180,6 +2193,9 @@ def gedcom_help() -> str:
 
 - **find_all_relationship_paths**(person1_id, person2_id, allowed_relationships, max_distance, max_paths) - Find all relationship paths between two people
 - **find_all_paths_to_ancestor**(start_person_id, ancestor_id, max_paths) - Find all paths from a person to a specific ancestor (parent links only)
+
+## Enhanced Search Tools:
+- **fuzzy_search_person**(name, threshold, max_results) - Search for persons with fuzzy name matching
 
 ## Data Management Tools:
 - **update_person**(person_id, name, gender, birth_date, birth_place, death_date, death_place) - Updates the details for an existing person
