@@ -97,7 +97,8 @@ from .gedcom_data_management import (
     _remove_parents_internal, _update_event_details_internal,
     _remove_event_internal, _add_note_to_entity_internal,
     _create_source_internal, _delete_note_entity_internal, _new_empty_gedcom_internal,
-    _update_person_attribute_internal, _update_person_details_internal
+    _update_person_attribute_internal, _update_person_details_internal,
+    _batch_update_person_attributes_internal
 )
 from .gedcom_search import (
     _dijkstra_bidirectional_search, _get_person_neighbors_lazy, _get_person_neighbors_lazy_reverse,
@@ -137,6 +138,54 @@ class GedcomError(Exception):
         if self.recovery_suggestion:
             result["recovery_suggestion"] = self.recovery_suggestion
         return result
+
+
+class ProgressTracker:
+    """Track progress of long-running operations."""
+    
+    def __init__(self, total_items: int, description: str, update_interval: int = 1000):
+        self.total_items = total_items
+        self.processed = 0
+        self.description = description
+        self.update_interval = update_interval
+        self.start_time = time.time()
+        self.last_update = 0
+    
+    def update(self, increment: int = 1, force: bool = False) -> None:
+        """Update progress counter."""
+        self.processed += increment
+        current_time = time.time()
+        
+        # Update if forced or if enough time has passed
+        if force or (current_time - self.last_update) >= 1.0:  # Update every second
+            self._report_progress()
+            self.last_update = current_time
+    
+    def _report_progress(self) -> None:
+        """Report current progress."""
+        if self.total_items > 0:
+            percentage = (self.processed / self.total_items) * 100
+            elapsed = time.time() - self.start_time
+            
+            # Estimate remaining time
+            if self.processed > 0:
+                rate = self.processed / elapsed
+                remaining = (self.total_items - self.processed) / rate if rate > 0 else 0
+            else:
+                remaining = 0
+            
+            logger.info(
+                f"{self.description}: {percentage:.1f}% complete "
+                f"({self.processed}/{self.total_items}) - "
+                f"Elapsed: {elapsed:.1f}s, Remaining: {remaining:.1f}s"
+            )
+    
+    def finish(self) -> None:
+        """Mark operation as complete."""
+        self.processed = self.total_items
+        self._report_progress()
+        total_time = time.time() - self.start_time
+        logger.info(f"{self.description}: Complete in {total_time:.1f}s")
 
 
 # Set up logging
@@ -1535,6 +1584,28 @@ async def update_person_attribute(person_id: str, attribute_tag: str, new_value:
         return f"Error updating attribute: {e}"
 
 @mcp.tool()
+async def batch_update_person_attributes(updates: str, ctx: Context) -> dict:
+    """Update multiple person attributes in a single operation.
+    
+    Args:
+        updates: JSON string containing list of updates.
+                Each update should have: person_id, attribute_tag, new_value
+    """
+    import json
+    
+    gedcom_ctx = get_gedcom_context(ctx)
+    
+    try:
+        update_list = json.loads(updates) if updates else []
+    except json.JSONDecodeError as e:
+        return {"error": f"Invalid JSON in updates parameter: {e}"}
+    
+    if not isinstance(update_list, list):
+        return {"error": "Updates parameter must be a JSON array"}
+    
+    return _batch_update_person_attributes_internal(gedcom_ctx, update_list)
+
+@mcp.tool()
 async def remove_person_attribute(person_id: str, attribute_type: str, ctx: Context, value_to_match: str) -> str:
     """Removes a specific attribute from a person.
 
@@ -2296,6 +2367,7 @@ def gedcom_help() -> str:
 - **get_person_attributes**(person_id) - Returns a list of all attributes for a person
 - **update_person_attribute**(person_id, attribute_type, new_value, old_value_to_match) - Updates the value of a person's attribute
 - **remove_person_attribute**(person_id, attribute_type, value_to_match) - Removes a specific attribute from a person
+- **batch_update_person_attributes**(updates) - Update multiple person attributes in a single operation
 - **add_note_to_entity**(entity_id, note_text) - Adds a new note to a person or family. Create references to note entities. A new note is created
 - **delete_note_from_entity**(entity_id, note_starts_with, note_id) - Deletes an inline note from a person or family, or removes a reference to a note entity
 - **delete_note_entity**(note_id) - Deletes a note entity by its ID and removes all references to it

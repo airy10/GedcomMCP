@@ -8,6 +8,7 @@ from gedcom.parser import Parser
 from gedcom.element.element import Element
 from .gedcom_models import PersonDetails, PersonRelationships
 from .gedcom_utils import _get_gedcom_tag_from_event_type
+from .gedcom_context import _rebuild_lookups
 from .gedcom_name_utils import format_gedcom_name_from_string
 
 
@@ -417,6 +418,77 @@ def _create_note_internal(context, note_text: str) -> str:
     # Add note to parser and lookup
     context.gedcom_parser.get_root_element().add_child_element(note)
     context.note_lookup[new_note_id] = note
+
+
+def _batch_update_person_attributes_internal(context, updates: list) -> dict:
+    """Update multiple person attributes in a single operation.
+    
+    Args:
+        context: The GEDCOM context
+        updates: List of dictionaries containing person_id, attribute_tag, and new_value
+        
+    Returns:
+        Dictionary with results of the batch operation
+    """
+    if not context.gedcom_parser:
+        return {"error": "No GEDCOM file loaded. Please load a GEDCOM file first."}
+    
+    results = {
+        "total_updates": len(updates),
+        "successful": 0,
+        "failed": 0,
+        "errors": []
+    }
+    
+    # Process updates
+    for i, update in enumerate(updates):
+        try:
+            # Validate update structure
+            if not isinstance(update, dict):
+                results["failed"] += 1
+                results["errors"].append({
+                    "index": i,
+                    "error": "Update must be a dictionary"
+                })
+                continue
+            
+            person_id = update.get("person_id")
+            attribute_tag = update.get("attribute_tag")
+            new_value = update.get("new_value")
+            
+            if not all([person_id, attribute_tag, new_value is not None]):
+                results["failed"] += 1
+                results["errors"].append({
+                    "index": i,
+                    "error": "Missing required fields: person_id, attribute_tag, new_value"
+                })
+                continue
+            
+            # Perform update
+            result = _update_person_attribute_internal(context, person_id, attribute_tag, new_value)
+            if "Error" in result:
+                results["failed"] += 1
+                results["errors"].append({
+                    "index": i,
+                    "person_id": person_id,
+                    "error": result
+                })
+            else:
+                results["successful"] += 1
+                
+        except Exception as e:
+            results["failed"] += 1
+            results["errors"].append({
+                "index": i,
+                "error": str(e)
+            })
+    
+    # Clear caches after successful updates
+    if results["successful"] > 0:
+        context.clear_caches()
+        _rebuild_lookups(context)
+    
+    return results
 
     return new_note_id
 
