@@ -119,6 +119,26 @@ from .gedcom_analysis import (
 )
 from .gedcom_constants import EVENT_TYPES, ATTRIBUTE_TYPES
 
+class GedcomError(Exception):
+    """Base exception for GEDCOM operations."""
+    
+    def __init__(self, message: str, error_code: str = None, recovery_suggestion: str = None):
+        self.message = message
+        self.error_code = error_code or "UNKNOWN_ERROR"
+        self.recovery_suggestion = recovery_suggestion
+        super().__init__(self.message)
+    
+    def to_dict(self) -> dict:
+        """Convert error to dictionary format."""
+        result = {
+            "error": self.message,
+            "error_code": self.error_code
+        }
+        if self.recovery_suggestion:
+            result["recovery_suggestion"] = self.recovery_suggestion
+        return result
+
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -161,34 +181,101 @@ async def add_child_to_family(child_id: str, family_id: str, ctx: Context) -> st
     return f"Successfully added child {child_id} to family {family_id}"
 
 @mcp.tool()
-async def load_gedcom(file_path: str, ctx: Context) -> str:
+async def load_gedcom(file_path: str, ctx: Context) -> dict:
     """Load and parse a GEDCOM file"""
+    import os
+    from pathlib import Path
+    
+    # Validate file path
+    if not file_path:
+        error = GedcomError(
+            "File path is required",
+            error_code="MISSING_FILE_PATH",
+            recovery_suggestion="Provide a valid file path to a GEDCOM file"
+        )
+        return error.to_dict()
+    
+    # Check if file exists
+    path = Path(file_path)
+    if not path.exists():
+        error = GedcomError(
+            f"File not found: {file_path}",
+            error_code="FILE_NOT_FOUND",
+            recovery_suggestion="Check that the file path is correct and the file exists"
+        )
+        return error.to_dict()
+    
+    # Check if it's a file (not directory)
+    if not path.is_file():
+        error = GedcomError(
+            f"Path is not a file: {file_path}",
+            error_code="NOT_A_FILE",
+            recovery_suggestion="Provide a path to a GEDCOM file, not a directory"
+        )
+        return error.to_dict()
+    
+    # Try to load the file
     gedcom_ctx = get_gedcom_context(ctx)
-    success = load_gedcom_file(file_path, gedcom_ctx)
-    # Ensure the file path is stored in the context
-    if success:
-        gedcom_ctx.gedcom_file_path = file_path
-    # Note: With the global session store, we don't need to explicitly store the context back
-    # as it's already referenced in the global store
-    if success:
-        return f"Successfully loaded GEDCOM file: {file_path}"
-    else:
-        return f"Failed to load GEDCOM file: {file_path}"
+    try:
+        success = load_gedcom_file(file_path, gedcom_ctx)
+        if success:
+            gedcom_ctx.gedcom_file_path = file_path
+            return {
+                "status": "success",
+                "message": f"Successfully loaded GEDCOM file: {file_path}",
+                "individuals": len(gedcom_ctx.individual_lookup),
+                "families": len(gedcom_ctx.family_lookup)
+            }
+        else:
+            error = GedcomError(
+                f"Failed to parse GEDCOM file: {file_path}",
+                error_code="PARSE_ERROR",
+                recovery_suggestion="Check that the file is a valid GEDCOM format"
+            )
+            return error.to_dict()
+    except Exception as e:
+        error = GedcomError(
+            f"Error loading GEDCOM file: {str(e)}",
+            error_code="LOAD_ERROR",
+            recovery_suggestion="Check file permissions and format"
+        )
+        return error.to_dict()
 
 
 
 @mcp.tool()
-async def find_person(name: str, ctx: Context) -> list:
+async def find_person(name: str, ctx: Context) -> dict:
     """Find persons matching a name"""
+    if not name:
+        error = GedcomError(
+            "Search name is required",
+            error_code="MISSING_SEARCH_TERM",
+            recovery_suggestion="Provide a name to search for"
+        )
+        return error.to_dict()
+    
     gedcom_ctx = get_gedcom_context(ctx)
     if not gedcom_ctx.gedcom_parser:
-        return [{"error": "No GEDCOM file loaded. Please load a GEDCOM file first."}]
+        error = GedcomError(
+            "No GEDCOM file loaded. Please load a GEDCOM file first.",
+            error_code="NO_GEDCOM_LOADED",
+            recovery_suggestion="Load a GEDCOM file first using the 'load_gedcom' tool"
+        )
+        return error.to_dict()
         
     persons = find_person_by_name(name, gedcom_ctx)
     if persons:
-        return [person.model_dump() for person in persons]
+        return {
+            "status": "success",
+            "count": len(persons),
+            "persons": [person.model_dump() for person in persons]
+        }
     else:
-        return [{"error": f"No persons found matching: {name}"}]
+        return {
+            "status": "not_found",
+            "message": f"No persons found matching: {name}",
+            "recovery_suggestion": "Try a different search term or use fuzzy search for approximate matches"
+        }
 
 @mcp.tool()
 async def get_occupation(person_id: str, ctx: Context) -> str:
@@ -2140,7 +2227,7 @@ def gedcom_help() -> str:
 - **request_event_details**(context) - Request event details through structured forms
 
 ## Basic Tools:
-- **load_gedcom**(file_path) - Load a GEDCOM file
+- **load_gedcom**(file_path) - Load a GEDCOM file (returns structured data with statistics)
 - **find_person**(name) - Search for people by name
 - **get_person_details**(person_id) - Get detailed person information (now includes occupation)
 - **get_persons_batch**(person_ids, include_fields) - Get details for multiple people at once
