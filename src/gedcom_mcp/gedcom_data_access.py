@@ -622,11 +622,8 @@ def _get_person_attributes_internal(person_id: str, gedcom_ctx) -> Dict[str, str
                 if tag in ATTRIBUTE_TYPES:
                     attributes[tag] = child_elem.get_value()
             return attributes
-            return attributes
-        print(f"DEBUG: Individual {person_id} not found in lookup.")
         return {}
     except Exception as e:
-        print(f"DEBUG: Error in _get_person_attributes_internal: {e}")
         return {}
 
 def _get_notes_internal(entity_id: str, gedcom_ctx) -> List[Dict[str, Any]]:
@@ -733,7 +730,6 @@ def _get_notes_internal(entity_id: str, gedcom_ctx) -> List[Dict[str, Any]]:
                                                 note_data["date"] = note_child.get_value()
                                     
                                     notes.append(note_data)
-                                    break
 
         return notes
     except Exception as e:
@@ -890,21 +886,3 @@ def search_gedcom(query: str, gedcom_ctx: GedcomContext, search_type: str = "all
         return {"people": [], "places": [], "events": [], "families": []}
 
 
-def _get_timeline_internal(person_id: str, gedcom_ctx, event_types_dict) -> List[Dict[str, Any]]:
-    """Generate a chronological timeline of events for a person"""
-    events = get_events(person_id, gedcom_ctx, event_types_dict, {})
-    
-    # Sort events by date if possible
-    # This is a simple implementation - a more robust solution would parse dates properly
-    def extract_year(date_str):
-        if not date_str:
-            return 9999  # Put events with no date at the end
-        # Try to extract a 4-digit year from the date string
-        import re
-        year_match = re.search(r'\b(1[89]|20)\d{2}\b', date_str)
-        if year_match:
-            return int(year_match.group(0))
-        return 9999  # Put events with no parseable date at the end
-    
-    events.sort(key=lambda x: extract_year(x.get("date", "")))
-    return events

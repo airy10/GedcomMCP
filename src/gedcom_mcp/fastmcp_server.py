@@ -88,7 +88,7 @@ from .gedcom_models import PersonDetails, PersonRelationships, NodePriority
 from .gedcom_data_access import (
     get_person_details_internal, find_person_by_name, _get_relationships_internal, 
     _get_events_internal, decode_event_details, _get_places_internal, _get_notes_internal, _get_sources_internal,
-    search_gedcom, _get_timeline_internal, _extract_person_details, _get_person_relationships_internal, load_gedcom_file, save_gedcom_file, _get_person_attributes_internal
+    search_gedcom, _extract_person_details, _get_person_relationships_internal, load_gedcom_file, save_gedcom_file, _get_person_attributes_internal
 )
 from .gedcom_data_management import (
     _add_person_internal, _create_marriage_internal, _add_child_to_family_internal,
@@ -1361,6 +1361,37 @@ async def update_event_details(entity_id: str, event_type: str, ctx: Context, ne
 
 
 
+    return result
+
+
+@mcp.tool()
+async def remove_event(entity_id: str, event_type: str, ctx: Context, date_to_match: str = None) -> str:
+    """Removes an event from a person or family.
+
+    Args:
+        entity_id: The ID of the person or family.
+        event_type: The type of event to remove (e.g., 'BIRT', 'MARR', 'RESI').
+                    Use `get_supported_types()` to see all valid options.
+        date_to_match: Optional date to match for identifying the specific event.
+                      Required if there could be multiple events of the same type.
+
+    Returns:
+        A confirmation or error message.
+    """
+    gedcom_ctx = get_gedcom_context(ctx)
+    if not gedcom_ctx.gedcom_parser:
+        return "Error: No GEDCOM file loaded."
+
+    result = _remove_event_internal(gedcom_ctx, entity_id, event_type, date_to_match)
+    
+    # If successful, clear caches and rebuild lookups
+    if result.startswith("Successfully"):
+        gedcom_ctx.clear_caches()
+        _rebuild_lookups(gedcom_ctx)
+    
+    return result
+
+
 @mcp.tool()
 async def get_person_attributes(person_id: str, ctx: Context) -> dict:
     """Retrieves all attributes for a person.
@@ -1377,6 +1408,7 @@ async def get_person_attributes(person_id: str, ctx: Context) -> dict:
         return {"error": f"Person with ID {person_id} not found or has no attributes."}
     except Exception as e:
         return {"error": f"Error retrieving attributes: {e}"}
+
 
 @mcp.tool()
 async def update_person_attribute(person_id: str, attribute_tag: str, new_value: str, ctx: Context) -> str:
@@ -1424,7 +1456,6 @@ async def remove_person_attribute(person_id: str, attribute_type: str, ctx: Cont
         return f"Error: Invalid attribute type '{attribute_type}'."
 
     try:
-        print(f"DEBUG: gedcom_ctx in remove_person_attribute: {gedcom_ctx}")
         result = _remove_person_attribute_internal(gedcom_ctx, person_id, attribute_tag, value_to_match)
         if "Error" in result:
             return result
@@ -2101,7 +2132,7 @@ def gedcom_help() -> str:
 - **get_person_details**(person_id) - Get detailed person information (now includes occupation)
 - **get_persons_batch**(person_ids, include_fields) - Get details for multiple people at once
 - **get_occupation**(person_id) - Get a person's occupation
-- **get_relationships_tool**(person_id) - Get family relationships
+- **get_relationships**(person_id) - Get family relationships
 - **new_empty_gedcom**() - Create a new empty GEDCOM context
 - **add_person**(name, gender) - Add a new person to the GEDCOM data
 - **create_marriage**(husband_id, wife_id) - Create a marriage between two people
@@ -2112,31 +2143,31 @@ def gedcom_help() -> str:
 - **get_events**(person_id) - Get comprehensive events with full details
 - **get_notes**(entity_id) - Get all notes with full text for a person or family
 - **get_note_by_id**(note_id) - Get the full text content of a specific note (e.g., @N176@)
-- **get_sources_tool**(entity_id) - Get all sources for a person or family
-- **get_timeline_tool**(person_id) - Generate chronological timeline
+- **get_sources**(entity_id) - Get all sources for a person or family
+- **get_timeline**(person_id) - Generate chronological timeline
 
 ## Analysis Tools:
 - **gedcom_search**(query, search_type) - Search across people, places, events, families
-- **get_statistics_tool**() - Get comprehensive GEDCOM file statistics
+- **get_statistics**() - Get comprehensive GEDCOM file statistics
 - **get_attribute_statistics**(attribute_type) - Get statistics for a specific GEDCOM attribute (e.g., OCCU, RELI)
-- **get_places_tool**(query) - Get information about places
+- **get_places**(query) - Get information about places
 - **get_surname_statistics**(surname) - Analyze surname frequency and distribution
 - **get_date_range_analysis**() - Analyze time periods and generations covered
 - **find_potential_duplicates**() - Find possible duplicate person records
 
-- **validate_dates_tool**(birth_date, death_date) - Validate consistency between birth and death dates
-- **get_date_certainty_tool**(date_string) - Get certainty level description for a date
+- **validate_dates**(birth_date, death_date) - Validate consistency between birth and death dates
+- **get_date_certainty**(date_string) - Get certainty level description for a date
 
-- **normalize_name_tool**(name_string) - Normalize a name for comparison purposes
-- **find_name_variants_tool**(name_string) - Find common variants of a name
-- **normalize_place_name_tool**(place_string) - Normalize place names
+- **normalize_name**(name_string) - Normalize a name for comparison purposes
+- **find_name_variants**(name_string) - Find common variants of a name
+- **normalize_place_name**(place_string) - Normalize place names
 
-- **extract_geographic_hierarchy_tool**(place_string) - Extract geographic hierarchy from place strings
+- **extract_geographic_hierarchy**(place_string) - Extract geographic hierarchy from place strings
 
 ## Bulk Data Tools:
-- **get_all_people_ids**(page, page_size) - Get all person IDs with pagination
-- **get_all_places_list**(page, page_size) - Get all unique places with pagination
-- **get_all_families_ids**(page, page_size) - Get all family IDs with pagination
+- **get_all_entity_ids**(entity_type, page, page_size) - Get all entity IDs (person, family, place, note, source) with pagination
+
+
 - **get_all_entity_ids**(entity_type, page, page_size) - Get all entity IDs (person, family, place, note, source) with pagination
 - **query_people_by_criteria**(filters, page, page_size) - Flexible people search with multiple criteria
 

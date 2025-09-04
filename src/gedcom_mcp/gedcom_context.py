@@ -55,8 +55,7 @@ class GedcomContext:
 gedcom_context : GedcomContext = None
 
 def get_gedcom_context(ctx):
-    """Get or create GEDCOM context using a global session store for efficiency"""
-    from fastmcp import Context
+    global gedcom_context
     
     # Try to get the session from the FastMCP context
     session = ctx.session
@@ -65,7 +64,8 @@ def get_gedcom_context(ctx):
         gedcom_ctx = getattr(session, "_gedcom_context", None)
     else:
         gedcom_ctx = getattr(session, "_gedcom_context", None)
-        gedcom_cxt = gedcom_context
+        if gedcom_ctx is None:
+            gedcom_ctx = gedcom_context
         logger.info("No session - using global context")
     
     # If we don't one associated to the session, create a new context
