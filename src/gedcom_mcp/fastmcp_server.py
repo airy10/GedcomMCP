@@ -86,10 +86,10 @@ warnings.filterwarnings("ignore", category=DeprecationWarning, module="websocket
 from .gedcom_context import GedcomContext, get_gedcom_context, _rebuild_lookups
 from .gedcom_models import PersonDetails, PersonRelationships, NodePriority
 from .gedcom_data_access import (
-    get_person_details_internal, find_person_by_name, _get_relationships_internal, 
+    get_person_record, find_person_by_name, _get_relationships_internal, 
     _get_events_internal, decode_event_details, _get_places_internal, _get_notes_internal, _get_sources_internal,
     search_gedcom, _extract_person_details, _get_person_relationships_internal, load_gedcom_file, save_gedcom_file, _get_person_attributes_internal,
-    fuzzy_search_person_internal
+    fuzzy_search_records
 )
 from .gedcom_data_management import (
     _add_person_internal, _create_marriage_internal, _add_child_to_family_internal,
@@ -98,13 +98,13 @@ from .gedcom_data_management import (
     _remove_event_internal, _add_note_to_entity_internal,
     _create_source_internal, _delete_note_entity_internal, _new_empty_gedcom_internal,
     _update_person_attribute_internal, _update_person_details_internal,
-    _batch_update_person_attributes_internal
+    batch_update_person_attributes
 )
 from .gedcom_search import (
     _dijkstra_bidirectional_search, _get_person_neighbors_lazy, _get_person_neighbors_lazy_reverse,
     _generate_relationship_chain_lazy, _correct_relationship_direction, _generate_relationship_description,
     _format_relationship_with_gender, _format_relationship_description,
-    _find_shortest_relationship_path_internal, _find_all_relationship_paths_internal, _find_all_paths_to_ancestor_internal
+    find_shortest_relationship_path, _find_all_relationship_paths_internal, _find_all_paths_to_ancestor_internal
 )
 from .gedcom_utils import (
     normalize_string, _get_gedcom_tag_from_event_type, _get_gedcom_tag_from_attribute_type,
@@ -113,10 +113,9 @@ from .gedcom_utils import (
     _matches_criteria
 )
 from .gedcom_analysis import (
-    _get_statistics_internal, _get_timeline_internal, _get_ancestors_internal, _get_descendants_internal,
+    _get_attribute_statistics_internal, get_statistics_report, _get_timeline_internal, _get_ancestors_internal, _get_descendants_internal,
     _get_family_tree_summary_internal, _get_surname_statistics_internal, _get_date_range_analysis_internal,
-    _find_potential_duplicates_internal, get_common_ancestors_internal,
-    _get_attribute_statistics_internal # Added this import
+    _find_potential_duplicates_internal, get_common_ancestors
 )
 from .gedcom_constants import EVENT_TYPES, ATTRIBUTE_TYPES
 
@@ -333,7 +332,7 @@ async def get_occupation(person_id: str, ctx: Context) -> str:
     if not gedcom_ctx.gedcom_parser:
         return "No GEDCOM file loaded. Please load a GEDCOM file first."
         
-    person = get_person_details_internal(person_id, gedcom_ctx)
+    person = get_person_record(person_id, gedcom_ctx)
     if person:
         if person.occupation:
             return f"Occupation for {person.name} ({person.id}): {person.occupation}"
@@ -479,7 +478,7 @@ async def fuzzy_search_person(name: str, ctx: Context, threshold: int = 80, max_
         max_results: Maximum number of results to return
     """
     gedcom_ctx = get_gedcom_context(ctx)
-    return fuzzy_search_person_internal(name, gedcom_ctx, threshold, max_results)
+    return fuzzy_search_records(name, gedcom_ctx, threshold, max_results)
 
 @mcp.tool()
 async def get_statistics(ctx: Context) -> dict:
@@ -488,7 +487,7 @@ async def get_statistics(ctx: Context) -> dict:
     if not gedcom_ctx.gedcom_parser:
         return {"error": "No GEDCOM file loaded. Please load a GEDCOM file first."}
         
-    stats = _get_statistics_internal(gedcom_ctx)
+    stats = get_statistics_report(gedcom_ctx)
     if stats:
         return stats
     else:
@@ -723,7 +722,7 @@ async def find_all_paths_to_ancestor(start_person_id: str, ancestor_id: str, ctx
         for path in paths:
             enriched_path = []
             for person_id in path:
-                person = get_person_details_internal(person_id, gedcom_ctx)
+                person = get_person_record(person_id, gedcom_ctx)
                 person_name = person.name if person else "Unknown"
                 enriched_path.append({
                     "id": person_id,
@@ -734,11 +733,11 @@ async def find_all_paths_to_ancestor(start_person_id: str, ancestor_id: str, ctx
         result = {
             "start_person": {
                 "id": start_person_id,
-                "name": get_person_details_internal(start_person_id, gedcom_ctx).name
+                "name": get_person_record(start_person_id, gedcom_ctx).name
             },
             "ancestor": {
                 "id": ancestor_id,
-                "name": get_person_details_internal(ancestor_id, gedcom_ctx).name
+                "name": get_person_record(ancestor_id, gedcom_ctx).name
             },
             "total_paths": len(paths),
             "paths": enriched_paths
@@ -798,7 +797,7 @@ async def get_persons_batch(person_ids: str, ctx: Context, include_fields: str =
         not_found = []
         
         for person_id in ids:
-            person = get_person_details_internal(person_id, gedcom_ctx)
+            person = get_person_record(person_id, gedcom_ctx)
             if person:
                 # Create filtered person data
                 person_data = {}
@@ -1057,8 +1056,8 @@ async def find_shortest_relationship_path(person1_id: str, person2_id: str, ctx:
         return "No GEDCOM file loaded. Please load a GEDCOM file first."
     
     # Validate that both people exist
-    person1 = get_person_details_internal(person1_id, gedcom_ctx)
-    person2 = get_person_details_internal(person2_id, gedcom_ctx)
+    person1 = get_person_record(person1_id, gedcom_ctx)
+    person2 = get_person_record(person2_id, gedcom_ctx)
     
     if not person1:
         return f"Person not found: {person1_id}"
@@ -1124,7 +1123,7 @@ async def find_shortest_relationship_path(person1_id: str, person2_id: str, ctx:
         logger.info(f"PERF: Relationship parsing took {parse_time:.3f}s, allowed: {allowed}")
         
         # Call the internal function instead of duplicating the logic
-        result = _find_shortest_relationship_path_internal(person1_id, person2_id, allowed_relationships, gedcom_ctx, max_distance, exclude_initial_spouse_children, min_distance)
+        result = find_shortest_relationship_path(person1_id, person2_id, allowed_relationships, gedcom_ctx, max_distance, exclude_initial_spouse_children, min_distance)
         # Convert dict to JSON string for the tool response
         if isinstance(result, dict):
             return json.dumps(result, indent=2)
@@ -1159,8 +1158,8 @@ async def find_all_relationship_paths(person1_id: str, person2_id: str, ctx: Con
         return "No GEDCOM file loaded. Please load a GEDCOM file first."
     
     # Validate that both people exist
-    person1 = get_person_details_internal(person1_id, gedcom_ctx)
-    person2 = get_person_details_internal(person2_id, gedcom_ctx)
+    person1 = get_person_record(person1_id, gedcom_ctx)
+    person2 = get_person_record(person2_id, gedcom_ctx)
     
     if not person1:
         return f"Person not found: {person1_id}"
@@ -1203,7 +1202,7 @@ async def get_common_ancestors(person_ids: str, ctx: Context, max_level: int = 2
         # Parse person IDs
         person_id_list = [pid.strip() for pid in person_ids.split(",") if pid.strip()]
         
-        result = get_common_ancestors_internal(person_id_list, gedcom_ctx, max_level)
+        result = _get_common_ancestors_internal(person_id_list, gedcom_ctx, max_level)
         
         return result
         
@@ -1868,7 +1867,7 @@ async def get_person_resource(person_id: str, ctx: Context) -> str:
     if not gedcom_ctx.gedcom_parser:
         return "No GEDCOM file loaded. Please load a GEDCOM file first."
     
-    person = get_person_details_internal(person_id, gedcom_ctx)
+    person = get_person_record(person_id, gedcom_ctx)
     if person:
         return person.json()
     else:
@@ -1932,18 +1931,18 @@ async def get_family_resource(family_id: str, ctx: Context) -> str:
     
     # Get person details for family members
     if husband_id:
-        husband = get_person_details_internal(husband_id, gedcom_ctx)
+        husband = get_person_record(husband_id, gedcom_ctx)
         if husband:
             family_info["husband"] = husband.model_dump()
     
     if wife_id:
-        wife = get_person_details_internal(wife_id, gedcom_ctx)
+        wife = get_person_record(wife_id, gedcom_ctx)
         if wife:
             family_info["wife"] = wife.model_dump()
     
     children_details = []
     for child_id in children_ids:
-        child = get_person_details_internal(child_id, gedcom_ctx)
+        child = get_person_record(child_id, gedcom_ctx)
         if child:
             children_details.append(child.model_dump())
     

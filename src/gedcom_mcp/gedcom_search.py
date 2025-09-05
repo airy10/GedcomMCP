@@ -10,7 +10,7 @@ from typing import List, Set, Dict, Any, Tuple, Optional
 
 from .gedcom_models import NodePriority
 from .gedcom_utils import extract_birth_year
-from .gedcom_data_access import get_person_details_internal, _get_person_relationships_internal
+from .gedcom_data_access import get_person_record, _get_person_relationships_internal
 
 def _dijkstra_bidirectional_search(start, end, allowed_relationships: Set[str], gedcom_ctx, max_distance=100, exclude_initial_spouse_children=False, min_distance=0, strict_min_distance=False):
     """Optimized bidirectional Dijkstra search with better data structures and pruning"""
@@ -548,7 +548,7 @@ def _correct_relationship_direction(rel_type, from_person, to_person, gedcom_ctx
     
     if rel_type == "spouse":
         # Check gender of to_person to use wife/husband
-        to_person_details = get_person_details_internal(to_person, gedcom_ctx)
+        to_person_details = get_person_record(to_person, gedcom_ctx)
         if to_person_details and to_person_details.gender:
             if to_person_details.gender == "F":
                 return "wife_of"
@@ -557,7 +557,7 @@ def _correct_relationship_direction(rel_type, from_person, to_person, gedcom_ctx
         return "spouse_of"  # fallback if gender unknown
     elif rel_type == "sibling":
         # Check gender of to_person to use brother/sister
-        to_person_details = get_person_details_internal(to_person, gedcom_ctx)
+        to_person_details = get_person_record(to_person, gedcom_ctx)
         if to_person_details and to_person_details.gender:
             if to_person_details.gender == "F":
                 return "sister_of"
@@ -568,7 +568,7 @@ def _correct_relationship_direction(rel_type, from_person, to_person, gedcom_ctx
         # Graph edge "parent" means from_person -> to_person where to_person is from_person's parent
         # So from_person is the child of to_person
         # Check gender of to_person to use mother/father
-        to_person_details = get_person_details_internal(to_person, gedcom_ctx)
+        to_person_details = get_person_record(to_person, gedcom_ctx)
         if to_person_details and to_person_details.gender:
             if to_person_details.gender == "F":
                 return "child_of_mother"
@@ -579,7 +579,7 @@ def _correct_relationship_direction(rel_type, from_person, to_person, gedcom_ctx
         # Graph edge "child" means from_person -> to_person where to_person is from_person's child
         # So from_person is the parent of to_person
         # Check gender of from_person to use mother/father
-        from_person_details = get_person_details_internal(from_person, gedcom_ctx)
+        from_person_details = get_person_record(from_person, gedcom_ctx)
         if from_person_details and from_person_details.gender:
             if from_person_details.gender == "F":
                 return "mother_of"
@@ -599,7 +599,7 @@ def _generate_relationship_description(path, relationship_chain, gedcom_ctx):
     # Get person names for the description
     person_names = []
     for person_id in path:
-        person = get_person_details_internal(person_id, gedcom_ctx)
+        person = get_person_record(person_id, gedcom_ctx)
         person_names.append(person.name if person else "Unknown")
     
     if len(path) == 2:
@@ -626,7 +626,7 @@ def _format_relationship_with_gender(rel_type, from_person_id, to_person_id, ged
     
     if rel_type in ["child_of_mother", "child_of_father", "child_of"]:
         # Check gender of the child (from_person)
-        from_person = get_person_details_internal(from_person_id, gedcom_ctx)
+        from_person = get_person_record(from_person_id, gedcom_ctx)
         if from_person and from_person.gender:
             if from_person.gender == "M":
                 return "son of"
@@ -641,7 +641,7 @@ def _format_relationship_with_gender(rel_type, from_person_id, to_person_id, ged
         return "parent of"
     elif rel_type in ["spouse", "spouse_of"]:
         # Check gender of the spouse (from_person) to determine if they are husband or wife
-        from_person = get_person_details_internal(from_person_id, gedcom_ctx)
+        from_person = get_person_record(from_person_id, gedcom_ctx)
         if from_person and from_person.gender:
             if from_person.gender == "M":
                 return "husband of"
@@ -654,7 +654,7 @@ def _format_relationship_with_gender(rel_type, from_person_id, to_person_id, ged
         return "husband of"
     elif rel_type in ["sibling", "sibling_of"]:
         # Could also be "brother of" or "sister of"
-        from_person = get_person_details_internal(from_person_id, gedcom_ctx)
+        from_person = get_person_record(from_person_id, gedcom_ctx)
         if from_person and from_person.gender:
             if from_person.gender == "M":
                 return "brother of"
@@ -698,7 +698,7 @@ def _format_relationship_description(rel_type):
     else:
         return rel_type
 
-def _find_shortest_relationship_path_internal(person1_id: str, person2_id: str, allowed_relationships: str, gedcom_ctx, max_distance: int = 30, exclude_initial_spouse_children: bool = False, min_distance: int = 0) -> Dict[str, Any]:
+def find_shortest_relationship_path(person1_id: str, person2_id: str, allowed_relationships: str, gedcom_ctx, max_distance: int = 30, exclude_initial_spouse_children: bool = False, min_distance: int = 0) -> Dict[str, Any]:
     """Find the shortest relationship path between two people
     
     Args:
@@ -732,10 +732,10 @@ def _find_shortest_relationship_path_internal(person1_id: str, person2_id: str, 
     logger = logging.getLogger(__name__)
     
     # Validate that both people exist
-    person1 = get_person_details_internal(person1_id, gedcom_ctx)
-    person2 = get_person_details_internal(person2_id, gedcom_ctx)
-    person1 = get_person_details_internal(person1_id, gedcom_ctx)
-    person2 = get_person_details_internal(person2_id, gedcom_ctx)
+    person1 = get_person_record(person1_id, gedcom_ctx)
+    person2 = get_person_record(person2_id, gedcom_ctx)
+    person1 = get_person_record(person1_id, gedcom_ctx)
+    person2 = get_person_record(person2_id, gedcom_ctx)
     
     if not person1:
         return {"error": f"Person not found: {person1_id}"}
@@ -845,7 +845,7 @@ def _find_shortest_relationship_path_internal(person1_id: str, person2_id: str, 
         detailed_path_description = []
         
         for i, person_id in enumerate(path):
-            person = get_person_details_internal(person_id, gedcom_ctx)
+            person = get_person_record(person_id, gedcom_ctx)
             person_name = person.name if person else "Unknown"
             path_with_names.append({
                 "id": person_id,
@@ -855,7 +855,7 @@ def _find_shortest_relationship_path_internal(person1_id: str, person2_id: str, 
             # Create step-by-step description
             if i < len(path) - 1:  # Not the last person
                 rel_type = relationship_chain[i]
-                next_person = get_person_details_internal(path[i + 1], gedcom_ctx)
+                next_person = get_person_record(path[i + 1], gedcom_ctx)
                 next_name = next_person.name if next_person else "Unknown"
                 
                 if rel_type in ["child_of", "child_of_mother", "child_of_father"]:
@@ -922,8 +922,8 @@ def _find_all_relationship_paths_internal(person1_id: str, person2_id: str, allo
     logger = logging.getLogger(__name__)
     
     # Validate that both people exist
-    person1 = get_person_details_internal(person1_id, gedcom_ctx)
-    person2 = get_person_details_internal(person2_id, gedcom_ctx)
+    person1 = get_person_record(person1_id, gedcom_ctx)
+    person2 = get_person_record(person2_id, gedcom_ctx)
     
     if not person1:
         return {"error": f"Person not found: {person1_id}"}
@@ -980,7 +980,7 @@ def _find_all_relationship_paths_internal(person1_id: str, person2_id: str, allo
             # Add person names to path
             path_with_names = []
             for person_id in path:
-                person = get_person_details_internal(person_id, gedcom_ctx)
+                person = get_person_record(person_id, gedcom_ctx)
                 person_name = person.name if person else "Unknown"
                 path_with_names.append({"id": person_id, "name": person_name})
             path_info["path"] = path_with_names
@@ -1121,8 +1121,8 @@ def _find_all_paths_to_ancestor_internal(start_person_id: str, ancestor_id: str,
         return []
     
     # Check if both people exist
-    start_person = get_person_details_internal(start_person_id, gedcom_ctx)
-    ancestor = get_person_details_internal(ancestor_id, gedcom_ctx)
+    start_person = get_person_record(start_person_id, gedcom_ctx)
+    ancestor = get_person_record(ancestor_id, gedcom_ctx)
     
     if not start_person:
         raise ValueError(f"Start person not found: {start_person_id}")
@@ -1146,7 +1146,7 @@ def _find_all_paths_to_ancestor_internal(start_person_id: str, ancestor_id: str,
             return
         
         # Get the current person's details
-        person = get_person_details_internal(current_id, gedcom_ctx)
+        person = get_person_record(current_id, gedcom_ctx)
         if not person or not person.parents:
             return
         

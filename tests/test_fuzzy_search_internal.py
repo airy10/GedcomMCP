@@ -8,7 +8,7 @@ from unittest.mock import patch, MagicMock
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from src.gedcom_mcp.gedcom_context import GedcomContext
-from src.gedcom_mcp.gedcom_data_access import fuzzy_search_person_internal
+from src.gedcom_mcp.gedcom_data_access import get_person_record, fuzzy_search_records
 
 class TestFuzzySearchInternal(unittest.TestCase):
 
@@ -19,7 +19,7 @@ class TestFuzzySearchInternal(unittest.TestCase):
         """Test when fuzzywuzzy is not installed"""
         # Mock the import to simulate fuzzywuzzy not being available
         with patch.dict('sys.modules', {'fuzzywuzzy': None, 'fuzzywuzzy.fuzz': None, 'fuzzywuzzy.process': None}):
-            result = fuzzy_search_person_internal("John Smith", self.gedcom_ctx)
+            result = fuzzy_search_records("John Smith", self.gedcom_ctx)
             self.assertIsInstance(result, list)
             self.assertEqual(len(result), 1)
             self.assertIn("error", result[0])
@@ -28,7 +28,7 @@ class TestFuzzySearchInternal(unittest.TestCase):
     def test_fuzzy_search_no_gedcom_loaded(self):
         """Test when no GEDCOM file is loaded"""
         self.gedcom_ctx.gedcom_parser = None
-        result = fuzzy_search_person_internal("John Smith", self.gedcom_ctx)
+        result = fuzzy_search_records("John Smith", self.gedcom_ctx)
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 1)
         self.assertIn("error", result[0])
@@ -39,7 +39,7 @@ class TestFuzzySearchInternal(unittest.TestCase):
         ]
         self.assertIn(result[0]["error"], expected_errors)
 
-    @patch('src.gedcom_mcp.gedcom_data_access.get_person_details_internal')
+    @patch('src.gedcom_mcp.gedcom_data_access.get_person_record')
     def test_fuzzy_search_success(self, mock_get_person):
         """Test successful fuzzy search"""
         # Skip this test if fuzzywuzzy is not installed
@@ -67,7 +67,7 @@ class TestFuzzySearchInternal(unittest.TestCase):
         with patch('fuzzywuzzy.process.extract') as mock_extract:
             mock_extract.return_value = [("John Smith", 95)]
             
-            result = fuzzy_search_person_internal("John Smyth", self.gedcom_ctx, threshold=90)
+            result = fuzzy_search_records("John Smyth", self.gedcom_ctx, threshold=90)
             
             self.assertIsInstance(result, list)
             # Should have one match above threshold
@@ -87,7 +87,7 @@ class TestFuzzySearchInternal(unittest.TestCase):
         self.gedcom_ctx.gedcom_parser = MagicMock()
         self.gedcom_ctx.individual_lookup = {}
         
-        result = fuzzy_search_person_internal("John Smith", self.gedcom_ctx)
+        result = fuzzy_search_records("John Smith", self.gedcom_ctx)
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 0)
 

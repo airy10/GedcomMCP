@@ -57,7 +57,7 @@ def save_gedcom_file(file_path: str, gedcom_ctx: GedcomContext) -> str:
     except Exception as e:
         return f"Error saving GEDCOM file to {file_path}: {e}"
 
-def get_person_details_internal(person_id: str, gedcom_ctx) -> Optional[PersonDetails]:
+def get_person_record(person_id: str, gedcom_ctx) -> Optional[PersonDetails]:
     """Get detailed information about a person"""
     if not gedcom_ctx.gedcom_parser:
         return None
@@ -318,19 +318,19 @@ def _get_relationships_internal(person_id: str, gedcom_ctx) -> Dict[str, Any]:
     
     # Get parent details
     for parent_id in person_relationships.parents:
-        parent = get_person_details_internal(parent_id, gedcom_ctx)
+        parent = get_person_record(parent_id, gedcom_ctx)
         if parent:
             relationships["parents"].append(parent.model_dump())
     
     # Get spouse details
     for spouse_id in person_relationships.spouses:
-        spouse = get_person_details_internal(spouse_id, gedcom_ctx)
+        spouse = get_person_record(spouse_id, gedcom_ctx)
         if spouse:
             relationships["spouses"].append(spouse.model_dump())
     
     # Get child details
     for child_id in person_relationships.children:
-        child = get_person_details_internal(child_id, gedcom_ctx)
+        child = get_person_record(child_id, gedcom_ctx)
         if child:
             relationships["children"].append(child.model_dump())
             
@@ -886,7 +886,7 @@ def search_gedcom(query: str, gedcom_ctx: GedcomContext, search_type: str = "all
         return {"people": [], "places": [], "events": [], "families": []}
 
 
-def fuzzy_search_person_internal(name: str, gedcom_ctx, threshold: int = 80, max_results: int = 50) -> list:
+def fuzzy_search_records(name: str, gedcom_ctx, threshold: int = 80, max_results: int = 50) -> list:
     """Search for persons with fuzzy name matching.
     
     Args:
@@ -927,7 +927,7 @@ def fuzzy_search_person_internal(name: str, gedcom_ctx, threshold: int = 80, max
     for match_name, score in results:
         if score >= threshold:
             person_id = person_lookup[match_name]
-            person = get_person_details_internal(person_id, gedcom_ctx)
+            person = get_person_record(person_id, gedcom_ctx)
             if person:
                 matches.append({
                     "person": person.model_dump(),

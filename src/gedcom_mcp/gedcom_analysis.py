@@ -8,7 +8,7 @@ from .gedcom_context import GedcomContext
 from datetime import datetime
 from collections import Counter # Added this import
 from gedcom.element.individual import IndividualElement
-from .gedcom_data_access import get_person_details_internal, _get_events_internal
+from .gedcom_data_access import get_person_record, _get_events_internal
 from .gedcom_utils import normalize_string, _get_gedcom_tag_from_attribute_type, _normalize_genealogy_date, _normalize_genealogy_place
 from .gedcom_constants import EVENT_TYPES, ATTRIBUTE_TYPES
 
@@ -49,7 +49,7 @@ def _get_attribute_statistics_internal(gedcom_ctx: GedcomContext, attribute_type
 
     return dict(attribute_counts)
 
-def _get_statistics_internal(gedcom_ctx: GedcomContext) -> Dict[str, Any]:
+def get_statistics_report(gedcom_ctx: GedcomContext) -> Dict[str, Any]:
     """Get comprehensive statistics about the GEDCOM file"""
     if not gedcom_ctx.gedcom_parser:
         return {}
@@ -220,7 +220,7 @@ def _collect_ancestors_recursive(pid: str, current_level: int, max_levels: int, 
     if current_level > max_levels:
         return
 
-    person = get_person_details_internal(pid, gedcom_ctx)
+    person = get_person_record(pid, gedcom_ctx)
     if person and person.parents:
         for parent_id in person.parents:
             person_entry = (parent_id, current_level + 1)
@@ -232,7 +232,7 @@ def _get_ancestors_recursive(pid: str, current_level: int, max_levels: int, gedc
     if current_level > max_levels:
         return None
 
-    person = get_person_details_internal(pid, gedcom_ctx)
+    person = get_person_record(pid, gedcom_ctx)
     if not person:
         return None
 
@@ -267,7 +267,7 @@ def _collect_descendants_recursive(pid: str, current_level: int, max_levels: int
     if current_level > max_levels:
         return
 
-    person = get_person_details_internal(pid, gedcom_ctx)
+    person = get_person_record(pid, gedcom_ctx)
     if person and person.children:
         for child_id in person.children:
             person_entry = (child_id, current_level + 1)
@@ -279,7 +279,7 @@ def _get_descendants_recursive(pid: str, current_level: int, max_levels: int, ge
     if current_level > max_levels:
         return None
 
-    person = get_person_details_internal(pid, gedcom_ctx)
+    person = get_person_record(pid, gedcom_ctx)
     if not person:
         return None
 
@@ -321,7 +321,7 @@ def _get_descendants_internal(pid: str, gedcom_ctx: GedcomContext, generations: 
     
     # Get children and recurse
     if current_level < max_levels:
-        person = get_person_details_internal(pid, gedcom_ctx)
+        person = get_person_record(pid, gedcom_ctx)
         if person and person.children:
             for child_id in person.children:
                 collect_descendants_recursive(child_id, current_level + 1, max_levels, collected, gedcom_ctx)
@@ -329,7 +329,7 @@ def _get_descendants_internal(pid: str, gedcom_ctx: GedcomContext, generations: 
 
 def get_living_status(person_id: str, gedcom_ctx: GedcomContext) -> str:
     """Determine if a person is likely living or deceased based on available data"""
-    person = get_person_details_internal(person_id, gedcom_ctx)
+    person = get_person_record(person_id, gedcom_ctx)
     if not person:
         return f"Person not found: {person_id}"
     
@@ -364,7 +364,7 @@ def get_living_status(person_id: str, gedcom_ctx: GedcomContext) -> str:
 
 def _get_family_tree_summary_internal(person_id: str, gedcom_ctx: GedcomContext) -> str:
     """Get a concise family tree summary showing parents, spouse(s), and children"""
-    person = get_person_details_internal(person_id, gedcom_ctx)
+    person = get_person_record(person_id, gedcom_ctx)
     if not person:
         return f"Person not found: {person_id}"
     
@@ -393,7 +393,7 @@ def _get_family_tree_summary_internal(person_id: str, gedcom_ctx: GedcomContext)
     if person.parents:
         result += "Parents:\n"
         for parent_id in person.parents:
-            parent = get_person_details_internal(parent_id, gedcom_ctx)
+            parent = get_person_record(parent_id, gedcom_ctx)
             if parent:
                 result += f"  - {parent.name} ({parent.id})\n"
     else:
@@ -403,7 +403,7 @@ def _get_family_tree_summary_internal(person_id: str, gedcom_ctx: GedcomContext)
     if person.spouses:
         result += "\nSpouse(s):\n"
         for spouse_id in person.spouses:
-            spouse = get_person_details_internal(spouse_id, gedcom_ctx)
+            spouse = get_person_record(spouse_id, gedcom_ctx)
             if spouse:
                 result += f"  - {spouse.name} ({spouse.id})\n"
     else:
@@ -413,7 +413,7 @@ def _get_family_tree_summary_internal(person_id: str, gedcom_ctx: GedcomContext)
     if person.children:
         result += f"\nChildren ({len(person.children)}):\n"
         for child_id in person.children:
-            child = get_person_details_internal(child_id, gedcom_ctx)
+            child = get_person_record(child_id, gedcom_ctx)
             if child:
                 result += f"  - {child.name} ({child.id})\n"
     else:
@@ -627,7 +627,7 @@ def _find_potential_duplicates_internal(gedcom_ctx: GedcomContext) -> str:
         return f"Error finding duplicates: {e}"
 
 
-def get_common_ancestors_internal(person_ids_list: List[str], gedcom_ctx: GedcomContext, max_level: int = 20) -> Dict[str, Any]:
+def get_common_ancestors(person_ids_list: List[str], gedcom_ctx: GedcomContext, max_level: int = 20) -> Dict[str, Any]:
     """Internal function to find common ancestors for a list of people"""
     if not gedcom_ctx.gedcom_parser:
         raise ValueError("No GEDCOM file loaded")
@@ -640,7 +640,7 @@ def get_common_ancestors_internal(person_ids_list: List[str], gedcom_ctx: Gedcom
     # Validate all people exist
     people = []
     for person_id in person_ids_list:
-        person = get_person_details_internal(person_id, gedcom_ctx)
+        person = get_person_record(person_id, gedcom_ctx)
         if not person:
             raise ValueError(f"Person not found: {person_id}")
         people.append(person)
@@ -664,7 +664,7 @@ def get_common_ancestors_internal(person_ids_list: List[str], gedcom_ctx: Gedcom
             visited.add(current_id)
             ancestors[current_id] = level
             
-            person = get_person_details_internal(current_id, gedcom_ctx)
+            person = get_person_record(current_id, gedcom_ctx)
             if person and person.parents:
                 for parent_id in person.parents:
                     if parent_id not in visited:
@@ -694,7 +694,7 @@ def get_common_ancestors_internal(person_ids_list: List[str], gedcom_ctx: Gedcom
     # Build detailed common ancestor information
     common_ancestors = []
     for ancestor_id in common_ancestor_ids:
-        ancestor = get_person_details_internal(ancestor_id, gedcom_ctx)
+        ancestor = get_person_record(ancestor_id, gedcom_ctx)
         if ancestor:
             ancestor_info = {
                 "id": ancestor_id,
@@ -726,7 +726,7 @@ def get_common_ancestors_internal(person_ids_list: List[str], gedcom_ctx: Gedcom
         "people": [
             {
                 "id": person_id,
-                "name": get_person_details_internal(person_id, gedcom_ctx).name
+                "name": get_person_record(person_id, gedcom_ctx).name
             } for person_id in person_ids_list
         ],
         "common_ancestors": common_ancestors,

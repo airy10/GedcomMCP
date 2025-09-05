@@ -9,7 +9,7 @@ from unittest.mock import patch, MagicMock
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from src.gedcom_mcp.gedcom_context import GedcomContext
-from src.gedcom_mcp.gedcom_data_management import _batch_update_person_attributes_internal
+from src.gedcom_mcp.gedcom_data_management import batch_update_person_attributes
 
 class TestBatchUpdatePersonAttributesInternal(unittest.TestCase):
 
@@ -19,7 +19,7 @@ class TestBatchUpdatePersonAttributesInternal(unittest.TestCase):
     def test_batch_update_no_gedcom_loaded(self):
         """Test batch update when no GEDCOM file is loaded"""
         self.gedcom_ctx.gedcom_parser = None
-        result = _batch_update_person_attributes_internal(self.gedcom_ctx, [])
+        result = batch_update_person_attributes(self.gedcom_ctx, [])
         self.assertIsInstance(result, dict)
         self.assertIn("error", result)
         self.assertEqual(result["error"], "No GEDCOM file loaded. Please load a GEDCOM file first.")
@@ -27,7 +27,7 @@ class TestBatchUpdatePersonAttributesInternal(unittest.TestCase):
     def test_batch_update_empty_list(self):
         """Test batch update with empty list"""
         self.gedcom_ctx.gedcom_parser = MagicMock()
-        result = _batch_update_person_attributes_internal(self.gedcom_ctx, [])
+        result = batch_update_person_attributes(self.gedcom_ctx, [])
         self.assertIsInstance(result, dict)
         self.assertEqual(result["total_updates"], 0)
         self.assertEqual(result["successful"], 0)
@@ -38,7 +38,7 @@ class TestBatchUpdatePersonAttributesInternal(unittest.TestCase):
         """Test batch update with invalid update type"""
         self.gedcom_ctx.gedcom_parser = MagicMock()
         updates = ["not a dict"]
-        result = _batch_update_person_attributes_internal(self.gedcom_ctx, updates)
+        result = batch_update_person_attributes(self.gedcom_ctx, updates)
         self.assertIsInstance(result, dict)
         self.assertEqual(result["total_updates"], 1)
         self.assertEqual(result["successful"], 0)
@@ -50,7 +50,7 @@ class TestBatchUpdatePersonAttributesInternal(unittest.TestCase):
         """Test batch update with missing required fields"""
         self.gedcom_ctx.gedcom_parser = MagicMock()
         updates = [{}]
-        result = _batch_update_person_attributes_internal(self.gedcom_ctx, updates)
+        result = batch_update_person_attributes(self.gedcom_ctx, updates)
         self.assertIsInstance(result, dict)
         self.assertEqual(result["total_updates"], 1)
         self.assertEqual(result["successful"], 0)
@@ -77,7 +77,7 @@ class TestBatchUpdatePersonAttributesInternal(unittest.TestCase):
             }
         ]
         
-        result = _batch_update_person_attributes_internal(self.gedcom_ctx, updates)
+        result = batch_update_person_attributes(self.gedcom_ctx, updates)
         
         self.assertIsInstance(result, dict)
         self.assertEqual(result["total_updates"], 2)
@@ -108,7 +108,7 @@ class TestBatchUpdatePersonAttributesInternal(unittest.TestCase):
             }
         ]
         
-        result = _batch_update_person_attributes_internal(self.gedcom_ctx, updates)
+        result = batch_update_person_attributes(self.gedcom_ctx, updates)
         
         self.assertIsInstance(result, dict)
         self.assertEqual(result["total_updates"], 2)

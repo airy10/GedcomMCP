@@ -420,7 +420,7 @@ def _create_note_internal(context, note_text: str) -> str:
     context.note_lookup[new_note_id] = note
 
 
-def _batch_update_person_attributes_internal(context, updates: list) -> dict:
+def batch_update_person_attributes(context, updates: list) -> dict:
     """Update multiple person attributes in a single operation.
     
     Args:
