@@ -1240,13 +1240,13 @@ async def update_person(person_id: str, ctx: Context, name: str = None, gender: 
 
         # Update birth event
         if birth_date is not None or birth_place is not None:
-            result = _update_person_details_internal(gedcom_ctx, person_id, 'BIRT', birth_date, birth_place)
+            result = _update_event_details_internal(gedcom_ctx, person_id, 'BIRT', birth_date, birth_place)
             if "Error" in result:
                 return result
 
         # Update death event
         if death_date is not None or death_place is not None:
-            result = _update_person_details_internal(gedcom_ctx, person_id, 'DEAT', death_date, death_place)
+            result = _update_event_details_internal(gedcom_ctx, person_id, 'DEAT', death_date, death_place)
             if "Error" in result:
                 return result
 
