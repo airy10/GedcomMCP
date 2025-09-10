@@ -418,6 +418,8 @@ def _create_note_internal(context, note_text: str) -> str:
     # Add note to parser and lookup
     context.gedcom_parser.get_root_element().add_child_element(note)
     context.note_lookup[new_note_id] = note
+    
+    return new_note_id
 
 
 def batch_update_person_attributes(context, updates: list) -> dict:
