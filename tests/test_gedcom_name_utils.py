@@ -15,6 +15,32 @@ class TestGedcomNameUtils(unittest.TestCase):
         self.assertEqual(name.given_names, ["John"])
         self.assertEqual(name.surname, "Smith")
 
+    def test_parse_genealogy_name_multiple_given_names(self):
+        # Test our specific case with multiple given names and surname in GEDCOM format
+        name = parse_genealogy_name("Georgette Marie Joséphine /LADAIGUE/")
+        self.assertEqual(name.given_names, ["Georgette", "Marie", "Joséphine"])
+        self.assertEqual(name.surname, "LADAIGUE")
+        self.assertEqual(str(name), "Georgette Marie Joséphine LADAIGUE")
+
+    def test_parse_genealogy_name_with_title_and_suffix(self):
+        # Test name with title and suffix in GEDCOM format
+        name = parse_genealogy_name("Dr. Robert James /Williams/ Jr.")
+        self.assertEqual(name.given_names, ["Robert", "James"])
+        self.assertEqual(name.surname, "Williams")
+        self.assertEqual(name.prefix, "Dr.")
+        self.assertEqual(name.suffix, "Jr.")
+        self.assertEqual(str(name), "Dr. Robert James Williams Jr.")
+
+    def test_parse_genealogy_name_complex_surname(self):
+        # Test complex multi-word surnames
+        name = parse_genealogy_name("Maria /de la Cruz/")
+        self.assertEqual(name.given_names, ["Maria"])
+        self.assertEqual(name.surname, "de la Cruz")
+        
+        name = parse_genealogy_name("James /Van Buren/")
+        self.assertEqual(name.given_names, ["James"])
+        self.assertEqual(name.surname, "Van Buren")
+
     def test_normalize_name(self):
         normalized_name = normalize_name("  John  /Smith/  ")
         self.assertEqual(normalized_name, "john smith")

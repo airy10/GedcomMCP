@@ -24,13 +24,13 @@ class GenealogyName:
     def __str__(self) -> str:
         """Return a standardized string representation of the name."""
         parts = []
-        if self.prefix:
+        if self.prefix and self.prefix not in self.given_names:
             parts.append(self.prefix)
         if self.given_names:
             parts.append(" ".join(self.given_names))
         if self.surname:
             parts.append(self.surname)
-        if self.suffix:
+        if self.suffix and self.suffix not in self.given_names:
             parts.append(self.suffix)
         return " ".join(parts)
     
@@ -87,30 +87,51 @@ def parse_genealogy_name(name_string: str) -> GenealogyName:
     surname_match = re.search(r'/([^/]+)/', name_string)
     if surname_match:
         surname = surname_match.group(1).strip()
+    
+    # Handle GEDCOM format names (surname in slashes)
+    if surname:
         # Remove surname from name string for further processing
-        name_string = re.sub(r'/[^/]+/', '', name_string).strip()
-    
-    # Use nameparser for robust name parsing
-    parsed = HumanName(name_string)
-    
-    # Extract components from nameparser result
-    title = parsed.title if parsed.title else None
-    first = parsed.first if parsed.first else ""
-    middle = parsed.middle if parsed.middle else ""
-    last = parsed.last if parsed.last else (surname or "")
-    suffix = parsed.suffix if parsed.suffix else None
-    
-    # Combine given names (first + middle)
-    given_names = []
-    if first:
-        given_names.append(first)
-    if middle:
-        given_names.extend(middle.split())
+        name_without_surname = re.sub(r'/[^/]+/', '', name_string).strip()
+        
+        # For GEDCOM format, treat ALL words before the surname as given names
+        # regardless of what nameparser thinks
+        if name_without_surname:
+            given_names = name_without_surname.split()
+        else:
+            given_names = []
+            
+        # Extract title and suffix by parsing the name without the surname part
+        temp_parsed = HumanName(name_without_surname)
+        title = temp_parsed.title if temp_parsed.title else None
+        suffix = temp_parsed.suffix if temp_parsed.suffix else None
+        
+        # Remove title and suffix from given_names if they exist there
+        if title and title in given_names:
+            given_names.remove(title)
+        if suffix and suffix in given_names:
+            given_names.remove(suffix)
+    else:
+        # Use nameparser for regular name parsing
+        parsed = HumanName(name_string)
+        
+        # Extract components from nameparser result
+        title = parsed.title if parsed.title else None
+        first = parsed.first if parsed.first else ""
+        middle = parsed.middle if parsed.middle else ""
+        surname = parsed.last if parsed.last else ""
+        suffix = parsed.suffix if parsed.suffix else None
+        
+        # Combine given names (first + middle)
+        given_names = []
+        if first:
+            given_names.append(first)
+        if middle:
+            given_names.extend(middle.split())
     
     return GenealogyName(
         original_text=original,
         given_names=given_names,
-        surname=last,
+        surname=surname,
         prefix=title,  # Using title as prefix to match our existing convention
         suffix=suffix,
         nickname=nickname,
