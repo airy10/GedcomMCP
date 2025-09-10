@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 from src.gedcom_mcp.gedcom_context import GedcomContext
 from src.gedcom_mcp.gedcom_data_access import load_gedcom_file
-from src.gedcom_mcp.gedcom_search import _dijkstra_bidirectional_search, _get_person_neighbors_lazy, _get_person_neighbors_lazy_reverse, _generate_relationship_chain_lazy, _correct_relationship_direction, _generate_relationship_description, _format_relationship_with_gender, _format_relationship_description, _find_shortest_relationship_path_internal, _find_all_relationship_paths_internal, _find_all_paths_to_ancestor_internal, check_component_connectivity
+from src.gedcom_mcp.gedcom_search import _dijkstra_bidirectional_search, _get_person_neighbors_lazy, _get_person_neighbors_lazy_reverse, _generate_relationship_chain_lazy, _correct_relationship_direction, _generate_relationship_description, _format_relationship_with_gender, _format_relationship_description, find_shortest_relationship_path, _find_all_relationship_paths_internal, _find_all_paths_to_ancestor_internal, check_component_connectivity
 
 
 class TestGedcomSearch(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestGedcomSearch(unittest.TestCase):
         load_gedcom_file(str(sample_ged_path), self.gedcom_ctx)
 
     def test_find_shortest_relationship_path_internal(self):
-        result = _find_shortest_relationship_path_internal("@I1@", "@I3@", "all", self.gedcom_ctx)
+        result = find_shortest_relationship_path("@I1@", "@I3@", "all", self.gedcom_ctx)
         self.assertIsInstance(result, dict)
         self.assertIn("path", result)
         self.assertEqual(len(result['path']), 2)  # John Smith -> Junior Smith

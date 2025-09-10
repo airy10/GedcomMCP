@@ -7,7 +7,7 @@ from pathlib import Path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from src.gedcom_mcp.gedcom_context import GedcomContext
-from src.gedcom_mcp.gedcom_data_access import load_gedcom_file, get_person_details_internal
+from src.gedcom_mcp.gedcom_data_access import load_gedcom_file, get_person_record
 from src.gedcom_mcp.gedcom_data_management import _add_person_internal, _create_marriage_internal, _add_child_to_family_internal, _remove_child_from_family_internal, _remove_parent_from_family_internal, _remove_event_internal, _remove_parents_internal, _update_event_details_internal, _create_note_internal, _add_note_to_entity_internal, _update_person_attribute_internal, _remove_person_attribute_internal, _update_person_details_internal, _create_source_internal, _delete_note_entity_internal, _new_empty_gedcom_internal, _find_next_available_id
 
 
@@ -20,7 +20,7 @@ class TestGedcomDataManagement(unittest.TestCase):
 
     def test_add_person_internal(self):
         person_id = _add_person_internal(self.gedcom_ctx, "Test User", "M")
-        person = get_person_details_internal(person_id, self.gedcom_ctx)
+        person = get_person_record(person_id, self.gedcom_ctx)
         self.assertEqual(person.name, "Test User")
 
     def test_create_marriage_internal(self):
@@ -41,22 +41,22 @@ class TestGedcomDataManagement(unittest.TestCase):
 
     def test_remove_parent_from_family_internal(self):
         _remove_parent_from_family_internal(self.gedcom_ctx, "@I1@", "@F1@")
-        person = get_person_details_internal("@I1@", self.gedcom_ctx)
+        person = get_person_record("@I1@", self.gedcom_ctx)
         self.assertNotIn("@F1@", person.spouses)
 
     def test_update_event_details_internal(self):
         _update_event_details_internal(self.gedcom_ctx, "@I1@", "BIRT", new_date="2 JAN 1970")
-        person = get_person_details_internal("@I1@", self.gedcom_ctx)
+        person = get_person_record("@I1@", self.gedcom_ctx)
         self.assertEqual(person.birth_date, "2 JAN 1970")
 
     def test_update_person_attribute_internal(self):
         _update_person_attribute_internal(self.gedcom_ctx, "@I1@", "OCCU", "Doctor")
-        person = get_person_details_internal("@I1@", self.gedcom_ctx)
+        person = get_person_record("@I1@", self.gedcom_ctx)
         self.assertEqual(person.occupation, "Doctor")
 
     def test_update_person_details_internal(self):
         _update_person_details_internal(self.gedcom_ctx, "@I1@", name="John Doe")
-        person = get_person_details_internal("@I1@", self.gedcom_ctx)
+        person = get_person_record("@I1@", self.gedcom_ctx)
         self.assertEqual(person.name, "John Doe")
 
     def test_new_empty_gedcom_internal(self):

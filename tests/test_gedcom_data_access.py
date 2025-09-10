@@ -8,7 +8,7 @@ from unittest.mock import patch
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from src.gedcom_mcp.gedcom_context import GedcomContext
-from src.gedcom_mcp.gedcom_data_access import load_gedcom_file, save_gedcom_file, get_person_details_internal, find_person_by_name, _get_relationships_internal, decode_event_details, _get_events_internal, _get_places_internal, _get_person_attributes_internal, _get_notes_internal, _get_sources_internal, search_gedcom
+from src.gedcom_mcp.gedcom_data_access import load_gedcom_file, save_gedcom_file, get_person_record, find_person_by_name, _get_relationships_internal, decode_event_details, _get_events_internal, _get_places_internal, _get_person_attributes_internal, _get_notes_internal, _get_sources_internal, search_gedcom
 from src.gedcom_mcp.gedcom_analysis import _get_timeline_internal
 
 class TestGedcomDataAccess(unittest.TestCase):
@@ -28,7 +28,7 @@ class TestGedcomDataAccess(unittest.TestCase):
         os.remove(save_path)
 
     def test_get_person_details_internal(self):
-        person = get_person_details_internal("@I1@", self.gedcom_ctx)
+        person = get_person_record("@I1@", self.gedcom_ctx)
         self.assertEqual(person.name, "John Smith")
 
     def test_find_person_by_name(self):
