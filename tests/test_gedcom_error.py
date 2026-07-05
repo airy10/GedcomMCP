@@ -7,7 +7,7 @@ from unittest.mock import patch, MagicMock
 # Add the parent directory to sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from src.gedcom_mcp.fastmcp_server import GedcomError
+from src.gedcom_mcp.fastmcp_server import GedcomError, ProgressTracker
 
 class TestGedcomError(unittest.TestCase):
 
@@ -18,7 +18,7 @@ class TestGedcomError(unittest.TestCase):
             error_code="TEST_ERROR",
             recovery_suggestion="Try doing something else"
         )
-        
+
         self.assertEqual(error.message, "Test error message")
         self.assertEqual(error.error_code, "TEST_ERROR")
         self.assertEqual(error.recovery_suggestion, "Try doing something else")
@@ -27,7 +27,7 @@ class TestGedcomError(unittest.TestCase):
     def test_gedcom_error_default_error_code(self):
         """Test creating a GedcomError with default error code"""
         error = GedcomError("Test error message")
-        
+
         self.assertEqual(error.message, "Test error message")
         self.assertEqual(error.error_code, "UNKNOWN_ERROR")
         self.assertIsNone(error.recovery_suggestion)
@@ -40,19 +40,31 @@ class TestGedcomError(unittest.TestCase):
             error_code="TEST_ERROR",
             recovery_suggestion="Try doing something else"
         )
-        
+
         error_dict = error.to_dict()
         self.assertIsInstance(error_dict, dict)
         self.assertEqual(error_dict["error"], "Test error message")
         self.assertEqual(error_dict["error_code"], "TEST_ERROR")
         self.assertEqual(error_dict["recovery_suggestion"], "Try doing something else")
-        
+
         # Test with default error code
         error2 = GedcomError("Another error")
         error_dict2 = error2.to_dict()
         self.assertEqual(error_dict2["error"], "Another error")
         self.assertEqual(error_dict2["error_code"], "UNKNOWN_ERROR")
         self.assertNotIn("recovery_suggestion", error_dict2)
+
+
+class TestProgressTracker(unittest.TestCase):
+
+    @patch('src.gedcom_mcp.fastmcp_server.time.time', return_value=123.0)
+    def test_forced_update_handles_zero_elapsed_time(self, mock_time):
+        """Forced progress updates can occur before measurable elapsed time."""
+        tracker = ProgressTracker(total_items=1, description="Test progress")
+
+        tracker.update(force=True)
+
+        self.assertEqual(tracker.processed, 1)
 
 if __name__ == '__main__':
     unittest.main()
