@@ -375,7 +375,7 @@ class ProgressTracker:
             elapsed = time.time() - self.start_time
 
             # Estimate remaining time
-            if self.processed > 0:
+            if self.processed > 0 and elapsed > 0:
                 rate = self.processed / elapsed
                 remaining = (
                     (self.total_items - self.processed) / rate if rate > 0 else 0
