@@ -2808,7 +2808,7 @@ async def get_person_attributes(
         }
 
     try:
-        attributes = _get_person_attributes_internal(gedcom_ctx, person_id)
+        attributes = _get_person_attributes_internal(person_id, gedcom_ctx)
         return {
             "status": "success",
             "message": f"Found {len(attributes)} attributes for person {person_id}",
