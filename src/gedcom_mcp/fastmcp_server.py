@@ -375,7 +375,7 @@ class ProgressTracker:
             elapsed = time.time() - self.start_time
 
             # Estimate remaining time
-            if self.processed > 0:
+            if self.processed > 0 and elapsed > 0:
                 rate = self.processed / elapsed
                 remaining = (
                     (self.total_items - self.processed) / rate if rate > 0 else 0
@@ -2325,7 +2325,7 @@ async def find_all_relationship_paths(
         return create_error_response(f"Person not found: {person2_id}")
 
     if person1_id == person2_id:
-        return f'{"paths": [{"path": ["{person1_id}"], "distance": 0, "relationship_chain": ["self"], "description": "Same person"}], "total_paths": 1}'
+        return json.dumps({"paths": [{"path": [person1_id], "distance": 0, "relationship_chain": ["self"], "description": "Same person"}], "total_paths": 1})
 
     # Validate parameters
     if max_distance < 1:
@@ -3730,7 +3730,7 @@ def gedcom_help() -> str:
 - **get_person_details**(person_id) - Get detailed person information (now includes occupation)
   - Parameters: person_id (string) - GEDCOM person ID (e.g., '@I1@', '@I123@')
 - **get_persons_batch**(person_ids, include_fields) - Get details for multiple people at once
-  - Parameters: 
+  - Parameters:
     - person_ids (string) - Comma-separated list of person IDs or single ID
     - include_fields (string) - Fields to include: 'basic', 'extended', 'full', or custom list
 - **get_occupation**(person_id) - Get a person's occupation
@@ -3984,3 +3984,4 @@ if __name__ == "__main__":
 
 # For compatibility with the __init__.py file
 app = mcp
+
