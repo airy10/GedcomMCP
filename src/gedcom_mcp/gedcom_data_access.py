@@ -139,8 +139,17 @@ def _extract_person_details(
             value = child_elem.get_value()
 
             if tag == "NAME":
-                # Use our enhanced name parsing
-                name = _normalize_genealogy_name(value)
+                name_type = None
+                for name_child in child_elem.get_child_elements():
+                    if name_child.get_tag() == "TYPE":
+                        name_type = name_child.get_value()
+                        break
+                normalized = _normalize_genealogy_name(value)
+                is_aka = isinstance(name_type, str) and name_type.strip().lower() == "aka"
+                if not is_aka:
+                    name = normalized
+                elif not name:
+                    name = normalized
 
             elif tag == "BIRT":
                 for birt_child in child_elem.get_child_elements():
