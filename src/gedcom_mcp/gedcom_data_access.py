@@ -143,8 +143,9 @@ def _extract_person_details(
                 for name_child in child_elem.get_child_elements():
                     if name_child.get_tag() == "TYPE":
                         name_type = name_child.get_value()
+                        break
                 normalized = _normalize_genealogy_name(value)
-                is_aka = name_type is not None and name_type.strip().lower() == "aka"
+                is_aka = isinstance(name_type, str) and name_type.strip().lower() == "aka"
                 if not is_aka:
                     name = normalized
                 elif not name:
