@@ -62,7 +62,7 @@ except ImportError:
 try:
     from .gedcom_name_utils import (
         parse_genealogy_name,
-        normalize_name,
+        normalize_name as _normalize_name,
         find_name_variants as _find_name_variants,
         GenealogyName,
     )
@@ -77,8 +77,8 @@ except ImportError:
 # Import our new genealogy place utilities
 try:
     from .gedcom_place_utils import (
-        normalize_place_name,
-        extract_geographic_hierarchy,
+        normalize_place_name as _normalize_place_name,
+        extract_geographic_hierarchy as _extract_geographic_hierarchy,
         NormalizedPlace,
     )
 
@@ -3605,7 +3605,7 @@ if NAME_UTILS_AVAILABLE:
             A normalized version of name
         """
         try:
-            normalized = normalize_name(name_string)
+            normalized = _normalize_name(name_string)
             return f"Normalized name for '{name_string}': {normalized}"
         except Exception as e:
             return f"Error normalizing name: {e}"
@@ -3645,7 +3645,7 @@ if PLACE_UTILS_AVAILABLE:
             A detailed breakdown of normalized place information
         """
         try:
-            normalized_place = normalize_place_name(place_string)
+            normalized_place = _normalize_place_name(place_string)
             import json
 
             return json.dumps(
@@ -3673,7 +3673,7 @@ if PLACE_UTILS_AVAILABLE:
             Dictionary with geographic components (city, county, state_province, country)
         """
         try:
-            hierarchy = extract_geographic_hierarchy(place_string)
+            hierarchy = _extract_geographic_hierarchy(place_string)
             import json
 
             return json.dumps(hierarchy, indent=2)
