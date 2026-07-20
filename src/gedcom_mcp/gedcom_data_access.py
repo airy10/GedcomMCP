@@ -905,9 +905,8 @@ def _get_sources_internal(
                         citation["event"] = None
                         sources.append(citation)
 
-                    elif tag in EVENT_TYPES:
-                        # Event-level citation (BIRT, DEAT, and MARR/DIV when
-                        # entity_id is a family record itself)
+                    elif tag in EVENT_TYPES or tag in ATTRIBUTE_TYPES:
+                        # Event/Attribute-level citation
                         if hasattr(child_elem, "get_child_elements"):
                             for event_child in child_elem.get_child_elements():
                                 if event_child.get_tag() == "SOUR":
