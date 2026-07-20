@@ -386,8 +386,64 @@ def _get_relationships_internal(person_id: str, gedcom_ctx) -> Dict[str, Any]:
 
     return relationships
 
+def _resolve_source_citation(sour_element, gedcom_ctx) -> Dict[str, Any]:
+    """Given a single SOUR child element (from a record, event, or attribute),
+    resolve it into full citation detail: bibliographic fields from the
+    referenced source record, plus page/quality/text/date/note from the
+    citation itself."""
+    source_ref = sour_element.get_value()
+    citation = {
+        "reference": source_ref,
+        "title": "",
+        "author": "",
+        "publication": "",
+        "repository": "",
+        "page": "",
+        "quality": "",
+        "text": "",
+        "citation_date": "",
+        "note": "",
+    }
 
-def decode_event_details(element, event_tag: str) -> Dict[str, Any]:
+    # Resolve the referenced source record's bibliographic fields
+    source_elem = gedcom_ctx.source_lookup.get(source_ref)
+    if source_elem and hasattr(source_elem, "get_child_elements"):
+        for source_child in source_elem.get_child_elements():
+            tag = source_child.get_tag()
+            value = source_child.get_value()
+            if tag == "TITL":
+                citation["title"] = value
+            elif tag == "AUTH":
+                citation["author"] = value
+            elif tag == "PUBL":
+                citation["publication"] = value
+            elif tag == "REPO":
+                citation["repository"] = value
+
+    # Extract citation-specific detail from the SOUR element itself
+    if hasattr(sour_element, "get_child_elements"):
+        for citation_child in sour_element.get_child_elements():
+            tag = citation_child.get_tag()
+            value = citation_child.get_value()
+            if tag == "PAGE":
+                citation["page"] = value
+            elif tag == "QUAY":
+                citation["quality"] = value
+            elif tag == "NOTE":
+                citation["note"] = value
+            elif tag == "DATA":
+                if hasattr(citation_child, "get_child_elements"):
+                    for data_child in citation_child.get_child_elements():
+                        data_tag = data_child.get_tag()
+                        data_value = data_child.get_value()
+                        if data_tag == "TEXT":
+                            citation["text"] = data_value
+                        elif data_tag == "DATE":
+                            citation["citation_date"] = data_value
+
+    return citation
+
+def decode_event_details(element, event_tag: str, gedcom_ctx) -> Dict[str, Any]:
     """Decode detailed event information from a GEDCOM element"""
     event_info = EVENT_TYPES.get(
         event_tag, {"name": event_tag, "description": f"Event type: {event_tag}"}
@@ -433,7 +489,7 @@ def decode_event_details(element, event_tag: str) -> Dict[str, Any]:
             elif tag == "NOTE":
                 event_data["notes"].append(value)
             elif tag == "SOUR":
-                event_data["sources"].append(value)
+                event_data["sources"].append(_resolve_source_citation(child, gedcom_ctx))
             elif tag == "AGE":
                 event_data["age"] = value
             elif tag == "AGNC":
@@ -474,7 +530,7 @@ def _get_events_internal(person_id: str, gedcom_ctx) -> List[Dict[str, Any]]:
                     tag = child_elem.get_tag()
 
                     if tag in EVENT_TYPES:
-                        event_data = decode_event_details(child_elem, tag)
+                        event_data = decode_event_details(child_elem, tag, gedcom_ctx)
                         event_data["person_name"] = name_str
                         events.append(event_data)
 
@@ -509,7 +565,7 @@ def _get_events_internal(person_id: str, gedcom_ctx) -> List[Dict[str, Any]]:
                                 elif attr_tag == "NOTE":
                                     event_data["notes"].append(attr_value)
                                 elif attr_tag == "SOUR":
-                                    event_data["sources"].append(attr_value)
+                                    event_data["sources"].append(_resolve_source_citation(attr_child, gedcom_ctx))
 
                         events.append(event_data)
 
@@ -534,7 +590,7 @@ def _get_events_internal(person_id: str, gedcom_ctx) -> List[Dict[str, Any]]:
 
                             if family_tag in EVENT_TYPES:
                                 event_data = decode_event_details(
-                                    family_child, family_tag
+                                    family_child, family_tag, gedcom_ctx
                                 )
                                 event_data["person_name"] = name_str
                                 event_data["family_id"] = family_pointer
@@ -800,7 +856,9 @@ def _get_notes_internal(
                                             "date": None,
                                         }
                                     )
-                                    break
+                                    # Continue the loop (no break) -- previously this exited after the
+                                    # first reference-type NOTE, silently dropping any notes that came
+                                    # after it.
                             else:
                                 # It's an inline note
                                 note_data = {
@@ -823,80 +881,63 @@ def _get_notes_internal(
         logger.error(f"Error getting notes: {e}")
         return []
 
-
 def _get_sources_internal(
     entity_id: str, gedcom_ctx: GedcomContext
 ) -> List[Dict[str, Any]]:
-    """Get all sources for a person or family"""
+    """Get all sources for a person or family, including citations attached
+    to specific events (birth, death, marriage, etc.)"""
     if not gedcom_ctx.gedcom_parser:
         return []
-
     try:
         sources = []
-
-        # PERFORMANCE OPTIMIZATION: Use lookup dictionaries for entity lookup
-        # Find the entity (person or family)
         element = gedcom_ctx.individual_lookup.get(
             entity_id
         ) or gedcom_ctx.family_lookup.get(entity_id)
         if element:
-            # Get all child elements to find sources
             if hasattr(element, "get_child_elements"):
                 child_elements = element.get_child_elements()
-
                 for child_elem in child_elements:
-                    if child_elem.get_tag() == "SOUR":
-                        source_ref = child_elem.get_value()
+                    tag = child_elem.get_tag()
 
-                        # PERFORMANCE OPTIMIZATION: Use source lookup dictionary
-                        # Find the referenced source
-                        source_elem = gedcom_ctx.source_lookup.get(source_ref)
-                        if source_elem:
-                            source_data = {
-                                "reference": source_ref,
-                                "title": "",
-                                "author": "",
-                                "publication": "",
-                                "repository": "",
-                                "page": "",
-                                "quality": "",
-                            }
+                    if tag == "SOUR":
+                        # Record-level citation (existing behavior)
+                        citation = _resolve_source_citation(child_elem, gedcom_ctx)
+                        citation["event"] = None
+                        sources.append(citation)
 
-                            # Get source details
-                            if hasattr(source_elem, "get_child_elements"):
-                                source_children = source_elem.get_child_elements()
-                                for source_child in source_children:
-                                    tag = source_child.get_tag()
-                                    value = source_child.get_value()
+                    elif tag in EVENT_TYPES:
+                        # Event-level citation (BIRT, DEAT, and MARR/DIV when
+                        # entity_id is a family record itself)
+                        if hasattr(child_elem, "get_child_elements"):
+                            for event_child in child_elem.get_child_elements():
+                                if event_child.get_tag() == "SOUR":
+                                    citation = _resolve_source_citation(event_child, gedcom_ctx)
+                                    citation["event"] = tag
+                                    sources.append(citation)
 
-                                    if tag == "TITL":
-                                        source_data["title"] = value
-                                    elif tag == "AUTH":
-                                        source_data["author"] = value
-                                    elif tag == "PUBL":
-                                        source_data["publication"] = value
-                                    elif tag == "REPO":
-                                        source_data["repository"] = value
-
-                            # Get citation details from the reference
-                            if hasattr(child_elem, "get_child_elements"):
-                                citation_children = child_elem.get_child_elements()
-                                for citation_child in citation_children:
-                                    tag = citation_child.get_tag()
-                                    value = citation_child.get_value()
-
-                                    if tag == "PAGE":
-                                        source_data["page"] = value
-                                    elif tag == "QUAY":
-                                        source_data["quality"] = value
-
-                            sources.append(source_data)
+                # If this is a person, also check their family events (MARR, DIV)
+                if isinstance(element, IndividualElement):
+                    fams_families = [
+                        c.get_value() for c in child_elements if c.get_tag() == "FAMS"
+                    ]
+                    for family_pointer in fams_families:
+                        family_elem = gedcom_ctx.family_lookup.get(family_pointer)
+                        if family_elem and hasattr(family_elem, "get_child_elements"):
+                            for family_child in family_elem.get_child_elements():
+                                family_tag = family_child.get_tag()
+                                if family_tag in EVENT_TYPES:
+                                    if hasattr(family_child, "get_child_elements"):
+                                        for event_child in family_child.get_child_elements():
+                                            if event_child.get_tag() == "SOUR":
+                                                citation = _resolve_source_citation(event_child, gedcom_ctx)
+                                                citation["event"] = family_tag
+                                                citation["family_id"] = family_pointer
+                                                sources.append(citation)
 
         return sources
     except Exception as e:
         logger.error(f"Error getting sources: {e}")
         return []
-
 
 def search_gedcom(
     query: str,
