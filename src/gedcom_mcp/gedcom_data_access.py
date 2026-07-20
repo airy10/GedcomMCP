@@ -437,9 +437,9 @@ def _resolve_source_citation(sour_element, gedcom_ctx) -> Dict[str, Any]:
                         data_tag = data_child.get_tag()
                         data_value = data_child.get_value()
                         if data_tag == "TEXT":
-                            citation["text"] = data_value
+                            citation["text"] = data_value or ""
                         elif data_tag == "DATE":
-                            citation["citation_date"] = data_value
+                            citation["citation_date"] = data_value or ""
 
     return citation
 
