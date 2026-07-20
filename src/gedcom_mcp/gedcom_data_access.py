@@ -412,13 +412,13 @@ def _resolve_source_citation(sour_element, gedcom_ctx) -> Dict[str, Any]:
             tag = source_child.get_tag()
             value = source_child.get_value()
             if tag == "TITL":
-                citation["title"] = value
+                citation["title"] = value or ""
             elif tag == "AUTH":
-                citation["author"] = value
+                citation["author"] = value or ""
             elif tag == "PUBL":
-                citation["publication"] = value
+                citation["publication"] = value or ""
             elif tag == "REPO":
-                citation["repository"] = value
+                citation["repository"] = value or ""
 
     # Extract citation-specific detail from the SOUR element itself
     if hasattr(sour_element, "get_child_elements"):
