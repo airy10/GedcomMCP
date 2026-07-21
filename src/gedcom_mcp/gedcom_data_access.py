@@ -33,7 +33,8 @@ def load_gedcom_file(file_path: str, gedcom_ctx: GedcomContext) -> bool:
         gedcom_ctx.gedcom_parser = Parser()
         gedcom_ctx.gedcom_parser.parse_file(file_path, False)
         gedcom_ctx.gedcom_file_path = file_path
-
+        gedcom_ctx.clear_caches()
+        
         _rebuild_lookups(gedcom_ctx)
 
         logger.info(f"Successfully loaded GEDCOM file: {file_path}")
