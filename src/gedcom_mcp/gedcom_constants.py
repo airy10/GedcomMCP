@@ -219,3 +219,32 @@ ATTRIBUTE_TYPES = {
         "description": "A description of a specific writing or other work",
     },
 }
+
+CUSTOM_TAG_TYPES = {
+    "_CIRC": {"name": "Circumcision", "description": "Custom FTM fact: circumcision"},
+    "_DCAUSE": {"name": "Cause of Death", "description": "Custom FTM fact: cause of death"},
+    "_DEG": {"name": "Degree", "description": "Custom FTM fact: academic degree"},
+    "_DEST": {"name": "Destination", "description": "Custom FTM fact: immigration/emigration destination"},
+    "_DNA": {"name": "DNA Markers", "description": "Custom FTM fact: DNA markers"},
+    "_ELEC": {"name": "Election", "description": "Custom FTM fact: election to office"},
+    "_EMPLOY": {"name": "Employment/Occupation", "description": "Custom FTM fact: employment"},
+    "_EXCM": {"name": "Excommunication", "description": "Custom FTM fact: excommunication"},
+    "_FUN": {"name": "Funeral", "description": "Custom FTM fact: funeral"},
+    "_HEIG": {"name": "Height", "description": "Custom FTM fact: height"},
+    "_WEIG": {"name": "Weight", "description": "Custom FTM fact: weight"},
+    "_INIT": {"name": "Initiatory (LDS)", "description": "Custom FTM fact: LDS initiatory ordinance"},
+    "_MDCL": {"name": "Medical Condition", "description": "Custom FTM fact: medical condition"},
+    "_MILT": {"name": "Military Service", "description": "Custom FTM fact: military service"},
+    "_MILTID": {"name": "Military Serial Number", "description": "Custom FTM fact: military serial number"},
+    "_MISN": {"name": "Mission (LDS)", "description": "Custom FTM fact: LDS mission"},
+    "_ORDI": {"name": "Ordinance", "description": "Custom FTM fact: ordinance"},
+    "_ORIG": {"name": "Origin", "description": "Custom FTM fact: origin"},
+    "_SEPR": {"name": "Separation", "description": "Custom FTM fact: separation (valid under INDI or FAM)"},
+    "_PHOTO": {"name": "Primary Photo", "description": "Custom FTM tag: flags default portrait OBJE"},
+}
+
+INDI_ONLY_CUSTOM_TAGS = {
+    "_CIRC", "_DCAUSE", "_DEG", "_DEST", "_DNA", "_ELEC", "_EMPLOY",
+    "_EXCM", "_FUN", "_HEIG", "_WEIG", "_INIT", "_MDCL", "_MILT",
+    "_MILTID", "_MISN", "_ORDI", "_ORIG", "_PHOTO",
+}
