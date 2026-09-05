@@ -15,7 +15,7 @@ from .gedcom_utils import (
     PLACE_UTILS_AVAILABLE,
 )
 from .gedcom_place_utils import normalize_place_name, extract_geographic_hierarchy
-from .gedcom_constants import EVENT_TYPES, ATTRIBUTE_TYPES
+from .gedcom_constants import EVENT_TYPES, ATTRIBUTE_TYPES, CUSTOM_TAG_TYPES, INDI_ONLY_CUSTOM_TAGS
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -599,6 +599,23 @@ def _get_events_internal(person_id: str, gedcom_ctx) -> List[Dict[str, Any]]:
                                     event_data["sources"].append(_resolve_source_citation(attr_child, gedcom_ctx))
 
                         events.append(event_data)
+                        
+                    elif tag.startswith("_"):
+                        tag_info = CUSTOM_TAG_TYPES.get(
+                            tag,
+                            {"name": tag, "description": f"Custom or unrecognized tag: {tag}"},
+                        )
+                        if tag not in CUSTOM_TAG_TYPES:
+                            logger.warning(
+                                f"Unrecognized tag '{tag}' on person {person_id} ({name_str}) -- "
+                                f"not in CUSTOM_TAG_TYPES, EVENT_TYPES, or ATTRIBUTE_TYPES; "
+                                f"surfacing generically with the raw tag as its name."
+                            )
+                        event_data = decode_event_details(child_elem, tag)
+                        event_data["name"] = tag_info["name"]
+                        event_data["description"] = tag_info["description"]
+                        event_data["person_name"] = name_str
+                        events.append(event_data)
 
                 # Get family events (marriages, divorces, etc.)
                 person_child_elements = element.get_child_elements()
@@ -625,6 +642,34 @@ def _get_events_internal(person_id: str, gedcom_ctx) -> List[Dict[str, Any]]:
                                 )
                                 event_data["person_name"] = name_str
                                 event_data["family_id"] = family_pointer
+                                events.append(event_data)
+                             
+                            elif family_tag.startswith("_"):
+                                tag_info = CUSTOM_TAG_TYPES.get(
+                                    family_tag,
+                                    {
+                                        "name": family_tag,
+                                        "description": f"Custom or unrecognized tag: {family_tag}",
+                                    },
+                                )
+                                event_data = decode_event_details(family_child, family_tag)
+                                event_data["name"] = tag_info["name"]
+                                event_data["description"] = tag_info["description"]
+                                event_data["person_name"] = name_str
+                                event_data["family_id"] = family_pointer
+
+                                if family_tag in INDI_ONLY_CUSTOM_TAGS:
+                                    warning_msg = (
+                                        f"Tag '{family_tag}' ({tag_info['name']}) is documented "
+                                        f"as INDI-only but was found under family {family_pointer} "
+                                        f"(linked via {person_id}, {name_str}). This may indicate "
+                                        f"a newer FTM version's behavior differs from documented "
+                                        f"conventions, or an unusual export -- worth reviewing the "
+                                        f"source GEDCOM directly."
+                                    )
+                                    logger.warning(warning_msg)
+                                    event_data["placement_warning"] = warning_msg
+
                                 events.append(event_data)
 
                 return events
