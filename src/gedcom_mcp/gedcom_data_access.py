@@ -800,7 +800,9 @@ def _get_notes_internal(
                                             "date": None,
                                         }
                                     )
-                                    break
+                                    # Continue the loop (no break) -- previously this exited after the
+                                    # first reference-type NOTE, silently dropping any notes that came
+                                    # after it.
                             else:
                                 # It's an inline note
                                 note_data = {
