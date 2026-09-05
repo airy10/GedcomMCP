@@ -444,7 +444,7 @@ def _resolve_source_citation(sour_element, gedcom_ctx) -> Dict[str, Any]:
 
     return citation
 
-def decode_event_details(element, event_tag: str, gedcom_ctx) -> Dict[str, Any]:
+def decode_event_details(element, event_tag: str, gedcom_ctx: Optional[GedcomContext] = None) -> Dict[str, Any]:
     """Decode detailed event information from a GEDCOM element"""
     event_info = EVENT_TYPES.get(
         event_tag, {"name": event_tag, "description": f"Event type: {event_tag}"}
