@@ -569,7 +569,7 @@ if __name__ == '__main__':
 
 Update `requirements.txt`:
 ```
-fastmcp>=0.1.0
+fastmcp==4.0.3
 python-gedcom>=0.1.0
 pydantic>=2.0.0
 cachetools>=4.0.0

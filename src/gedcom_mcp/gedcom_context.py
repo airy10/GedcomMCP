@@ -65,29 +65,20 @@ class GedcomContext:
 gedcom_context: GedcomContext = None
 
 
-def get_gedcom_context(ctx):
+def get_gedcom_context(ctx=None):
+    """Return the server-wide GEDCOM context.
+
+    FastMCP 4 supports stateless protocol connections, so application data
+    must not be stored on the private underlying session object. This server
+    intentionally manages one loaded family tree per process instead.
+    """
     global gedcom_context
 
-    # Try to get the session from the FastMCP context
-    session = ctx.session
-    if session:
-        logger.info(f"session:{session} id:{ctx.session_id}")
-        gedcom_ctx = getattr(session, "_gedcom_context", None)
-    else:
-        gedcom_ctx = None
-        if gedcom_ctx is None:
-            gedcom_ctx = gedcom_context
-        logger.info("No session - using global context")
+    if gedcom_context is None:
+        gedcom_context = GedcomContext()
+        logger.info("Created global GEDCOM context")
 
-    # If we don't one associated to the session, create a new context
-    if gedcom_ctx is None:
-        gedcom_ctx = GedcomContext()
-        if session:
-            setattr(session, "_gedcom_context", gedcom_ctx)
-        else:
-            gedcom_context = gedcom_ctx
-
-    return gedcom_ctx
+    return gedcom_context
 
 
 def _rebuild_lookups(gedcom_ctx: GedcomContext):

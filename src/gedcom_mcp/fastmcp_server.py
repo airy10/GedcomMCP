@@ -19,15 +19,6 @@ if __name__ == "__main__" and __package__ is None:
 
 from fastmcp import FastMCP, Context
 
-from mcp.types import (
-    TextContent,
-    GetPromptResult,
-    GetPromptRequest,
-    SamplingMessage,
-    Tool,
-    Role,
-    ImageContent,
-)
 from pydantic import BaseModel, Field
 from functools import total_ordering
 from dataclasses import dataclass, field
@@ -3370,80 +3361,36 @@ async def gedcom_search_resource(query: str, ctx: Context) -> str:
 
 
 # LLM Sampling Integration Functions
+#
+# FastMCP 4 removed server-initiated sampling from Context because the modern
+# MCP protocol is sessionless. These helpers remain as explicit migration
+# notices for callers that used the old internal helpers; generation should be
+# performed through an application-owned LLM client instead.
+def _sampling_removed_message(operation: str) -> str:
+    return (
+        f"{operation} is unavailable: FastMCP 4 removed server-initiated "
+        "sampling. Configure an application-owned LLM client and call it "
+        "from the server instead."
+    )
+
+
 async def generate_biography(context: Context, person_data: str) -> str:
-    """Generate a biographical summary for a person using LLM sampling"""
-    from mcp.types import SamplingMessage, TextContent, Role
-
-    messages = [
-        SamplingMessage(
-            role=Role.user,
-            content=TextContent(
-                type="text",
-                text=f"Generate a biographical summary for the following person data:\n\n{person_data}",
-            ),
-        )
-    ]
-
-    try:
-        result = await context.sample(
-            messages=messages,
-            system_prompt="You are a genealogy expert. Generate a well-written biographical summary based on the provided genealogical data. Include key life events in chronological order, mention family relationships, highlight any notable occupations or achievements, and keep the tone engaging but factual.",
-        )
-        return result.text if hasattr(result, "text") else str(result)
-    except Exception as e:
-        return f"Error generating biography: {e}"
+    """Explain how to migrate biography generation from MCP sampling."""
+    return _sampling_removed_message("Biography generation")
 
 
 async def generate_family_history(
     context: Context, person_data: str, family_data: str, generations: int = 3
 ) -> str:
-    """Generate a family history narrative using LLM sampling"""
-    from mcp.types import SamplingMessage, TextContent, Role
-
-    messages = [
-        SamplingMessage(
-            role=Role.user,
-            content=TextContent(
-                type="text",
-                text=f"Generate a family history narrative for the following person and their ancestors/descendants for {generations} generations:\n\nPerson Data:\n{person_data}\n\nFamily Data:\n{family_data}",
-            ),
-        )
-    ]
-
-    try:
-        result = await context.sample(
-            messages=messages,
-            system_prompt=f"You are a genealogy expert. Generate a comprehensive family history narrative that traces {generations} generations of this family. Include key life events, family relationships, migrations, and historical context. Organize the narrative chronologically and thematically. Make it engaging but factual.",
-        )
-        return result.text if hasattr(result, "text") else str(result)
-    except Exception as e:
-        return f"Error generating family history: {e}"
+    """Explain how to migrate family-history generation from MCP sampling."""
+    return _sampling_removed_message("Family-history generation")
 
 
 async def generate_historical_context(
     context: Context, time_periods: str, locations: str
 ) -> str:
-    """Generate historical context for time periods and locations using LLM sampling"""
-    from mcp.types import SamplingMessage, TextContent, Role
-
-    messages = [
-        SamplingMessage(
-            role=Role.user,
-            content=TextContent(
-                type="text",
-                text=f"Provide historical context for the following time periods and locations relevant to genealogical research:\n\nTime Periods:\n{time_periods}\n\nLocations:\n{locations}",
-            ),
-        )
-    ]
-
-    try:
-        result = await context.sample(
-            messages=messages,
-            system_prompt="You are a history expert specializing in genealogical research contexts. Provide relevant historical context for the given time periods and locations. Focus on major events, social conditions, migration patterns, and cultural aspects that would be relevant for understanding family histories. Be concise but informative.",
-        )
-        return result.text if hasattr(result, "text") else str(result)
-    except Exception as e:
-        return f"Error generating historical context: {e}"
+    """Explain how to migrate historical-context generation from MCP sampling."""
+    return _sampling_removed_message("Historical-context generation")
 
 
 # Structured User Elicitation Functions
@@ -3957,7 +3904,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="GEDCOM MCP Server")
     parser.add_argument(
         "--transport",
-        choices=["stdio", "streamable-http"],
+        choices=["stdio", "streamable-http", "sse"],
         default="streamable-http",
         help="Transport method for the MCP server (default: streamable-http)",
     )
@@ -3975,7 +3922,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if args.transport == "stdio":
+    if args.transport == "sse":
+        # Run server with stdio transport
+        mcp.run(transport="sse", host=args.host, port=args.port)
+    elif args.transport == "stdio":
         # Run server with stdio transport
         mcp.run(transport="stdio")
     else:

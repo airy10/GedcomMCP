@@ -80,7 +80,8 @@ All fixes have been thoroughly tested:
 - **Utility Functions**: Helper functions for date, name, and place parsing
 
 ### Dependencies
-- `fastmcp>=0.1.0`: MCP framework
+- `fastmcp==4.0.3`: MCP framework (latest stable release)
+- Python 3.10 or newer is required by FastMCP 4
 - `python-gedcom>=0.1.0`: GEDCOM parsing library
 - `pydantic>=2.0.0`: Data validation and serialization
 - `cachetools>=4.0.0`: Caching utilities
