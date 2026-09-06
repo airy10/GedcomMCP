@@ -206,7 +206,12 @@ def validate_gedcom_path(file_path: str) -> Path:
 
 
 # Import our modularized components
-from .gedcom_context import GedcomContext, get_gedcom_context, _rebuild_lookups
+from .gedcom_context import (
+    GedcomContext,
+    get_dataset_id,
+    get_gedcom_context,
+    _rebuild_lookups,
+)
 from .gedcom_models import PersonDetails, PersonRelationships, NodePriority
 from .gedcom_data_access import (
     get_person_record,
@@ -451,6 +456,7 @@ async def load_gedcom(
                 "status": "success",
                 "message": f"Successfully loaded GEDCOM file: {file_path}",
                 "data": {
+                    "dataset_id": get_dataset_id(ctx),
                     "file_path": file_path,
                     "individuals": len(gedcom_ctx.individual_lookup),
                     "families": len(gedcom_ctx.family_lookup),

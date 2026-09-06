@@ -3,6 +3,7 @@
 import logging
 from typing import Any, Dict, Optional
 from dataclasses import dataclass, field
+from threading import RLock
 from cachetools import LRUCache
 
 # Try to import GEDCOM parser
@@ -62,23 +63,116 @@ class GedcomContext:
         logger.info("All GEDCOM caches cleared.")
 
 
-gedcom_context: GedcomContext = None
+DEFAULT_DATASET_ID = "default"
+
+# FastMCP 4 requests may use fresh protocol connections. Keep application
+# state in an explicit, process-owned registry keyed by the caller's dataset ID.
+gedcom_contexts: Dict[str, GedcomContext] = {}
+gedcom_context: GedcomContext = None  # Backward-compatible alias for default.
+_context_registry_lock = RLock()
 
 
-def get_gedcom_context(ctx=None):
-    """Return the server-wide GEDCOM context.
+def _request_metadata_dataset_id(ctx=None) -> Optional[str]:
+    """Read an application dataset handle from MCP request metadata."""
+    if ctx is None:
+        return None
+    try:
+        request_context = ctx.request_context
+        meta = request_context.meta if request_context else None
+        if meta is not None:
+            dataset_id = getattr(meta, "dataset_id", None)
+            if dataset_id is None and isinstance(meta, dict):
+                dataset_id = meta.get("dataset_id")
+            if isinstance(dataset_id, str) and dataset_id:
+                return dataset_id
+    except (AttributeError, RuntimeError):
+        # Context may be used by direct unit tests or before a request exists.
+        pass
+    return None
 
-    FastMCP 4 supports stateless protocol connections, so application data
-    must not be stored on the private underlying session object. This server
-    intentionally manages one loaded family tree per process instead.
+
+def _session_dataset_id(ctx=None) -> Optional[str]:
+    """Return a stable handle when FastMCP exposes a session."""
+    if ctx is None:
+        return None
+
+    try:
+        session = ctx.session
+    except (AttributeError, RuntimeError):
+        session = None
+
+    if session is not None:
+        dataset_id = getattr(session, "_gedcom_dataset_id", None)
+        if isinstance(dataset_id, str) and dataset_id:
+            return dataset_id
+
+    try:
+        session_id = ctx.session_id
+    except (AttributeError, RuntimeError):
+        session_id = None
+    if isinstance(session_id, str) and session_id:
+        dataset_id = f"session:{session_id}"
+        if session is not None:
+            try:
+                setattr(session, "_gedcom_dataset_id", dataset_id)
+            except Exception:
+                logger.debug("Could not attach GEDCOM dataset handle to FastMCP session")
+        return dataset_id
+
+    return None
+
+
+def get_dataset_id(ctx=None, dataset_id: Optional[str] = None) -> str:
+    """Resolve the application dataset handle for the current request.
+
+    A session ID is preferred and remains stable across requests. Request
+    metadata is used only for genuinely sessionless requests, with the legacy
+    default retained for direct calls and single-dataset clients.
     """
+    if dataset_id:
+        resolved = dataset_id
+    else:
+        resolved = _session_dataset_id(ctx)
+        if not resolved:
+            resolved = _request_metadata_dataset_id(ctx)
+        if not resolved:
+            resolved = DEFAULT_DATASET_ID
+
+    if not isinstance(resolved, str) or not resolved:
+        raise ValueError("dataset_id must be a non-empty string")
+
+    return resolved
+
+
+def get_gedcom_context(ctx=None, dataset_id: Optional[str] = None):
+    """Return the live application context for the selected dataset.
+
+    FastMCP request/session objects store only the small dataset handle. The
+    registry stores each live parser, lookup dictionaries, caches, and unsaved
+    edits across requests while keeping different dataset IDs isolated.
+    """
+    resolved_id = get_dataset_id(ctx, dataset_id)
+
     global gedcom_context
+    with _context_registry_lock:
+        gedcom_ctx = gedcom_contexts.get(resolved_id)
+        if gedcom_ctx is None:
+            gedcom_ctx = GedcomContext()
+            gedcom_contexts[resolved_id] = gedcom_ctx
+            logger.info("Created GEDCOM context for dataset %s", resolved_id)
 
-    if gedcom_context is None:
-        gedcom_context = GedcomContext()
-        logger.info("Created global GEDCOM context")
+        if resolved_id == DEFAULT_DATASET_ID:
+            gedcom_context = gedcom_ctx
 
-    return gedcom_context
+        return gedcom_ctx
+
+
+def clear_gedcom_contexts() -> None:
+    """Clear the process-local dataset registry (primarily useful for tests)."""
+    global gedcom_context
+    with _context_registry_lock:
+        gedcom_contexts.clear()
+        gedcom_context = None
 
 
 def _rebuild_lookups(gedcom_ctx: GedcomContext):
